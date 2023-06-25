@@ -37,8 +37,7 @@ function args() {
 args "$@"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-pushd $SCRIPT_DIR/.. >/dev/null
-source .envrc
+source $SCRIPT_DIR/envs.sh
 
 for ns in $(kubectl get ns -o custom-columns=":metadata.name"); do
   for k in $(kubectl get kustomizations.kustomize.toolkit.fluxcd.io -n $ns -o custom-columns=":metadata.name"); do

@@ -52,9 +52,7 @@ function args() {
 args "$@"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-pushd $SCRIPT_DIR/.. >/dev/null
-source .envrc
-
+source $SCRIPT_DIR/envs.sh
 
 flux suspend kustomization -n ${namespace} ${resource}-eks-config-c1
 kubectl delete -n ${namespace} terraforms.infra.contrib.fluxcd.io eks-config-${resource}-c1 &

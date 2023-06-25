@@ -37,8 +37,7 @@ function args() {
 args "$@"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-pushd $SCRIPT_DIR/.. >/dev/null
-source .envrc
+source $SCRIPT_DIR/envs.sh
 
 export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 

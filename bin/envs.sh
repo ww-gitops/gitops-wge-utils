@@ -10,4 +10,5 @@ if [ -f ${top_level}/.envrc ]; then
   source .envrc
 else
   echo "No .envrc found in ${top_level}"
+  exit 1
 fi

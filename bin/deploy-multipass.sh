@@ -41,8 +41,7 @@ function args() {
 args "$@"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-pushd $SCRIPT_DIR/.. >/dev/null
-source .envrc
+source $SCRIPT_DIR/envs.sh
 
 kubectl get cm -n flux-system cluster-config -o json | jq -r '.data | keys[] as $k | "export \($k)=\"\(.[$k])\""' > /tmp/vars.sh
 echo "" >> /tmp/vars.sh
