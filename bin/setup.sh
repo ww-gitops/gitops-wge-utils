@@ -189,5 +189,5 @@ if [ "$aws" == "true" ]; then
   echo "Waiting for aws to be applied"
   kubectl wait --timeout=5m --for=condition=Ready kustomization/aws -n flux-system
 
-  terraform/bin/tf-apply.sh aws-key-pair
+  ${config_dir}/terraform/bin/tf-apply.sh aws-key-pair
 fi
