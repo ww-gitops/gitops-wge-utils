@@ -78,7 +78,7 @@ else
   ca-cert.sh
 fi
 
-kubectl create ns cert-manager
+kubectl apply -f ${config_dir}/mgmt-cluster/addons/cert-manager/namespace.yaml
 kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Secret
