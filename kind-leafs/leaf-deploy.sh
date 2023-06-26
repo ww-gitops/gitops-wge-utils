@@ -87,7 +87,19 @@ do
   sleep 1
 done
 
-flux --version
-#flux bootstrap github --owner $GITHUB_MGMT_ORG --repository $GITHUB_MGMT_REPO --path clusters/kind/$hostname-$cluster_name/flux
-flux bootstrap github --token-auth --token $GITHUB_TOKEN --owner $GITHUB_MGMT_ORG --repository $GITHUB_MGMT_REPO --path clusters/kind/$hostname-$cluster_name/flux
+git clone https:/github.com/$GITHUB_GLOBAL_CONFIG_ORG/$GITHUB_GLOBAL_CONFIG_REPO /tmp/$GITHUB_GLOBAL_CONFIG_REPO
 
+kubectl apply -f /tmp/$GITHUB_GLOBAL_CONFIG_REPO/mgmt-cluster/addons/flux
+
+kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: flux-system
+  namespace: flux-system
+data:
+  username: $(echo -n "git" | base64)
+  password: $(echo -n "$GITHUB_TOKEN_READ" | base64)
+EOF
+
+cat /tmp/$GITHUB_GLOBAL_CONFIG_REPO/resources/gotk-sync.yaml | envsubst | kubectl apply -f -

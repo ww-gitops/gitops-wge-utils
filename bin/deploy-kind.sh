@@ -64,8 +64,10 @@ location="${hostname:-localhost}"
 if [ -n "${hostname}" ]; then
   $scp_cmd -r ${utils_dir}/kind-leafs ${username_str}${hostname}:/tmp >/dev/null
 
-  cat .envrc | grep "export GITHUB_MGMT_" > /tmp/${location}-${cluster_name}-env.sh
-  echo "export GITHUB_TOKEN=${GITHUB_TOKEN_READ}" >> /tmp/${location}-${cluster_name}-env.sh
+  export leaf_target_path="clusters/kind/$hostname-$cluster_name"
+  cat .envrc | grep "export GITHUB_" > /tmp/${location}-${cluster_name}-env.sh
+  echo "export GITHUB_TOKEN_READ=${GITHUB_TOKEN_READ}" >> /tmp/${location}-${cluster_name}-env.sh
+  echo "export target_path=${leaf_target_path}" >> /tmp/${location}-${cluster_name}-env.sh
   echo "export listen_address=${listen_address}" >> /tmp/${location}-${cluster_name}-env.sh
   echo "export listen_port=${listen_port}" >> /tmp/${location}-${cluster_name}-env.sh
   echo "export cluster_name=${cluster_name}" >> /tmp/${location}-${cluster_name}-env.sh
@@ -95,7 +97,7 @@ else
   cp $(local_or_global resources/kind.yaml) /tmp
 
   export hostname=localhost
-  
+  export target_path="clusters/kind/$hostname-$cluster_name"
   kind-leafs/leaf-deploy.sh $debug_str
 
   cp /tmp/kubeconfig ~/.kube/localhost-${cluster-name}.kubeconfig
