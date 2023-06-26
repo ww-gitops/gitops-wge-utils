@@ -76,6 +76,7 @@ cat mgmt-cluster/templates/$template_name.yaml | envsubst > /tmp/$template_name.
 gitops create template /tmp/$template_name.yaml --values RESOURCE_NAME=$resource_name AWS_REGION=$AWS_REGION --output-dir .
 git add clusters/management/clusters/$namespace/$resource_name.yaml
 
+mkdir -p resource-descriptions/$namespace/
 cat $(local_or_global resource-descriptions/templates/$env_template.yaml) | envsubst > resource-descriptions/$namespace/$resource_name.yaml
 git add resource-descriptions/$namespace/$resource_name.yaml
 
