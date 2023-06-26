@@ -78,6 +78,7 @@ else
   ca-cert.sh
 fi
 
+kubectl create ns cert-manager
 kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Secret
@@ -89,10 +90,11 @@ data:
   tls.key: $(base64 -i resources/CA.key)
 EOF
 
-kubectl wait --for=condition=Ready kustomizations.kustomize.toolkit.fluxcd.io -n flux-system flux-system
+kubectl wait --timeout=5m --for=condition=Ready kustomizations.kustomize.toolkit.fluxcd.io -n flux-system flux-system
+
 # Wait for ingress controller to start
 echo "Waiting for ingress controller to start"
-kubectl wait --timeout=2m --for=condition=Ready kustomizations.kustomize.toolkit.fluxcd.io -n flux-system nginx
+kubectl wait --timeout=5m --for=condition=Ready kustomizations.kustomize.toolkit.fluxcd.io -n flux-system nginx
 
 export CLUSTER_IP=$(kubectl get svc -n ingress-nginx ingress-nginx-controller -o jsonpath='{.spec.clusterIP}')
 
