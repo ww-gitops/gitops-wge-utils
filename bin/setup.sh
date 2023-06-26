@@ -162,9 +162,13 @@ vault-secrets-config.sh
 set -e
 
 if [ "$aws_capi" == "true" ]; then
-  clusterawsadm bootstrap iam create-cloudformation-stack --config $(local_or_global resources/clusterawsadm.yaml) --region $AWS_REGION
-
   export AWS_B64ENCODED_CREDENTIALS=$(clusterawsadm bootstrap credentials encode-as-profile)
+fi
+
+secrets.sh --tls-skip --wge-entitlement $PWD/resources/wge-entitlement.yaml --secrets $PWD/resources/github-secrets.sh
+
+if [ "$aws_capi" == "true" ]; then
+  clusterawsadm bootstrap iam create-cloudformation-stack --config $(local_or_global resources/clusterawsadm.yaml) --region $AWS_REGION
 
   export EXP_EKS=true
   export EXP_MACHINE_POOL=true
@@ -173,8 +177,6 @@ if [ "$aws_capi" == "true" ]; then
 
   clusterctl init --infrastructure aws
 fi
-
-secrets.sh --tls-skip --wge-entitlement $PWD/resources/wge-entitlement.yaml --secrets $PWD/resources/github-secrets.sh
 
 # Wait for dex to start
 kubectl wait --timeout=5m --for=condition=Ready kustomization/dex -n flux-system
