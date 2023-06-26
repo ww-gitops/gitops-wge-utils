@@ -58,7 +58,7 @@ args "$@"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $SCRIPT_DIR/envs.sh
 utils_dir="$(realpath $SCRIPT_DIR/..)"
-sources resources/github-sectets.sh
+source resources/github-sectets.sh
 location="${hostname:-localhost}"
 
 if [ -n "${hostname}" ]; then
