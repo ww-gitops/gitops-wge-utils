@@ -66,8 +66,8 @@ metadata:
   name: flux-system
   namespace: flux-system
 data:
-  username: "git"
-  password: "$GITHUB_TOKEN_READ"
+  username: $(echo -n "git" | base64)
+  password: $(echo -n "$GITHUB_TOKEN_READ" | base64)
 EOF
   cat $(local_or_global resources/gotk-sync.yaml) | envsubst | kubectl apply -f -
 fi
