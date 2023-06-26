@@ -104,15 +104,15 @@ if [ "$aws" == "true" ]; then
 fi
 
 if [ "$aws" == "true" ]; then
-  cp $(local_or_global resources/aws/flux/)* mgmt-cluster/flux
-  cp $(local_or_global resources/aws/templates/)* mgmt-cluster/templates
+  cp $(local_or_global resources/aws/flux/)* mgmt-cluster/flux/
+  cp $(local_or_global resources/aws/templates/)* mgmt-cluster/templates/
   git add mgmt-cluster/flux
   git add mgmt-cluster/templates
 fi
 
 if [ "$capi" == "true" ]; then
-  cp $(local_or_global resources/capi/flux/)* mgmt-cluster/flux
-  cp $(local_or_global resources/capi/namespace/)* mgmt-cluster/namespace
+  cp $(local_or_global resources/capi/flux/)* mgmt-cluster/flux/
+  cp $(local_or_global resources/capi/namespace/)* mgmt-cluster/namespace/
   git add mgmt-cluster/flux
   git add mgmt-cluster/namespace
 fi
