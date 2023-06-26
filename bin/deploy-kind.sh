@@ -57,11 +57,12 @@ args "$@"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $SCRIPT_DIR/envs.sh
+utils_dir="$(realpath $SCRIPT_DIR/..)
 
 location="${hostname:-localhost}"
 
 if [ -n "${hostname}" ]; then
-  $scp_cmd -r kind-leafs ${username_str}${hostname}:/tmp >/dev/null
+  $scp_cmd -r ${utils_dir}/kind-leafs ${username_str}${hostname}:/tmp >/dev/null
 
   cat .envrc | grep "export GITHUB_MGMT_" > /tmp/${location}-${cluster_name}-env.sh
   echo "export GITHUB_TOKEN=${GITHUB_TOKEN_READ}" >> /tmp/${location}-${cluster_name}-env.sh
