@@ -73,7 +73,7 @@ fi
 vault kv put ${tls_skip} -mount=secrets wge-entitlement entitlement=${entitlement} username=${username} password=${password}
 
 source ${secrets_file}
-source resources/github-config.sh
+source $(local_or_global resources/github-config.sh)
 
 vault kv put ${tls_skip} -mount=secrets dex-config config.yaml="$(cat `local_or_global resources/github-dex-config.yaml` |envsubst)"
 # vault kv put ${tls_skip} -mount=secrets git-provider-credentials GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID} GITLAB_CLIENT_SECRET=${GITLAB_CLIENT_SECRET} \
