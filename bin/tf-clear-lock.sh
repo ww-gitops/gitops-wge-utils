@@ -46,8 +46,7 @@ function args() {
 args "$@"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-pushd $SCRIPT_DIR/.. >/dev/null
-source .envrc
+source $SCRIPT_DIR/envs.sh
 
 table=$(kubectl get terraforms.infra.contrib.fluxcd.io -n $tf_ns $tf_name -o jsonpath='{.spec.backendConfig}' | jq -r '.customConfiguration' | grep dynamodb_table | cut -f2 -d\")
 key=$(kubectl get terraforms.infra.contrib.fluxcd.io -n $tf_ns $tf_name -o jsonpath='{.spec.backendConfig}' | jq -r '.customConfiguration' | grep key | cut -f2 -d\")

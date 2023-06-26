@@ -65,7 +65,7 @@ if [ $ret -eq 0 ]; then
   cp /tmp/known_hosts $HOME/.ssh/known_hosts
 fi
 
-cat resources/multipass-cloud-init.yaml | envsubst > /tmp/cloud-init.yaml
+cat $(local_or_global resources/multipass-cloud-init.yaml) | envsubst > /tmp/cloud-init.yaml
 
 multipass launch --name $hostname --mem 4G --disk 20G --cpus 2 --cloud-init /tmp/cloud-init.yaml
 ip="$(multipass info ${hostname} | grep -E "^IPv4:" | awk '{print $2}')"

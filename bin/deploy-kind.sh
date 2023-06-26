@@ -72,8 +72,8 @@ if [ -n "${hostname}" ]; then
   echo "export KUBECONFIG=/tmp/${cluster_name}.kubeconfig" >> /tmp/${location}-${cluster_name}-env.sh
   $scp_cmd -r /tmp/${location}-${cluster_name}-env.sh ${username_str}${hostname}:/tmp/env.sh >/dev/null
 
-  $scp_cmd -r resources/kind.yaml ${username_str}${hostname}:/tmp >/dev/null
-  $scp_cmd -r resources/audit.yaml ${username_str}${hostname}:/tmp >/dev/null
+  $scp_cmd -r $(local_or_global resources/kind.yaml) ${username_str}${hostname}:/tmp >/dev/null
+  $scp_cmd -r $(local_or_global resources/audit.yaml) ${username_str}${hostname}:/tmp >/dev/null
 
   if [ -n "$install" ]; then
     $ssh_cmd ${username_str}${hostname} "source /tmp/kind-leafs/leaf-install.sh $debug_str"
@@ -91,7 +91,7 @@ else
     kind-leafs/leaf-install.sh $debug_str
   fi
 
-  cp resources/kind.yaml /tmp
+  cp $(local_or_global resources/kind.yaml) /tmp
 
   export hostname=localhost
   
@@ -110,7 +110,7 @@ export cluster_name
 export hostname
 export wge_cluster_name="kind-${hostname}-${cluster_name}"
 git pull
-cat resources/leaf-flux.yaml | envsubst > clusters/kind/$hostname-$cluster_name/flux/flux.yaml
+cat $(local_or_global resources/leaf-flux.yaml) | envsubst > clusters/kind/$hostname-$cluster_name/flux/flux.yaml
 git add clusters/kind/$hostname-$cluster_name/flux/flux.yaml
 
 if [[ `git status --porcelain` ]]; then
@@ -140,7 +140,7 @@ kubectl wait --timeout=5m --for=condition=Ready kustomization/wge-sa -n flux-sys
 
 git pull
 mkdir -p clusters//kind/$hostname-$cluster_name/wge
-cat resources/leaf-wge.yaml | envsubst > clusters/kind/$hostname-$cluster_name/wge/flux.yaml
+cat $(local_or_global resources/leaf-wge.yaml)| envsubst > clusters/kind/$hostname-$cluster_name/wge/flux.yaml
 git add clusters/kind/$hostname-$cluster_name/wge/flux.yaml
 
 if [[ `git status --porcelain` ]]; then
@@ -158,11 +158,11 @@ export token="$(kubectl --kubeconfig ~/.kube/$location-${cluster_name}.kubeconfi
 export cert="$(cat $HOME/.kube/${hostname}-${cluster_name}.kubeconfig | yq -r '.clusters[0].cluster."certificate-authority-data"')"
 export endpoint="$(cat $HOME/.kube/${hostname}-${cluster_name}.kubeconfig | yq -r '.clusters[0].cluster.server')"
 
-cat resources/wge-kubeconfig.yaml | envsubst > /tmp/kind-${hostname}-${cluster_name}-wge-kubeconfig.yaml
+cat $(local_or_global resources/wge-kubeconfig.yaml) | envsubst > /tmp/kind-${hostname}-${cluster_name}-wge-kubeconfig.yaml
 vault kv put -mount=secrets/leaf-cluster-secrets kind-${hostname}-${cluster_name}  value.yaml="$(cat /tmp/kind-${hostname}-${cluster_name}-wge-kubeconfig.yaml)"
 
 mkdir -p clusters/management/clusters/kind/$hostname-$cluster_name
-cat resources/mgmt-flux.yaml | envsubst > clusters/management/clusters/kind/$hostname-$cluster_name/flux.yaml
+cat $(local_or_global resources/mgmt-flux.yaml) | envsubst > clusters/management/clusters/kind/$hostname-$cluster_name/flux.yaml
 git add clusters/management/clusters/kind/$hostname-$cluster_name/flux.yaml
 if [[ `git status --porcelain` ]]; then
   git commit -m "deploy kustomization to apply kubeconfig and gitopsCluster for kind cluster $hostname-$cluster_name"

@@ -19,3 +19,11 @@ function add_to_path() {
     PATH="${new_path}:$PATH"
 }
 
+function local_or_global() {
+    local_file="${1:-}"
+    if [ -e "${local_file}" ]; then
+        echo "./${local_file}"
+    else 
+        echo "${config_dir}/${local_file}"
+    fi
+}

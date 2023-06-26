@@ -36,8 +36,7 @@ function args() {
 args "$@"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-pushd $SCRIPT_DIR/.. >/dev/null
-source .envrc
+source $SCRIPT_DIR/envs.sh
 
 source resources/github-config.sh
 source resources/github-secrets.sh

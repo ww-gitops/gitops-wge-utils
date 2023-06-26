@@ -97,7 +97,7 @@ if [ "$aws" == "true" ]; then
 fi
 
 
-rm -rf cluster/flux/flux-system
+rm -rf mgmt-cluster/flux/flux-system
 git add -A
 if [[ `git status --porcelain` ]]; then
   git commit -m "remove flux resources"

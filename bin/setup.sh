@@ -40,14 +40,8 @@ function args() {
 
 args "$@"
 
-top_level=$(git rev-parse --show-toplevel)
-if [ -f ${top_level}/.envrc ]; then
-  pushd ${top_level}
-  source .envrc
-else
-  echo "No .envrc found in ${top_level}"
-  exit 1
-fi
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source $SCRIPT_DIR/envs.sh
 
 echo "Waiting for cluster to be ready"
 kubectl wait --for=condition=Available  -n kube-system deployment coredns
@@ -63,7 +57,19 @@ fi
 if [ $bootstrap -eq 0 ]; then
   echo "flux-system namespace already. skipping bootstrap"
 else
-  bootstrap.sh
+  kubectl apply -f ${config_dir}/mgmt-cluster/addons/flux
+  source resources/github-secrets.sh
+  kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: flux-system
+  namespace: flux-system
+data:
+  username: "git"
+  password: "$GITHUB_TOKEN_READ"
+EOF
+  cat $(local_or_global resources/gotk-sync.yaml) | envsubst | kubectl apply -f -
 fi
 
 if [ -f resources/CA.cer ]; then
@@ -89,31 +95,33 @@ echo "Waiting for ingress controller to start"
 kubectl wait --timeout=2m --for=condition=Ready kustomizations.kustomize.toolkit.fluxcd.io -n flux-system nginx
 
 export CLUSTER_IP=$(kubectl get svc -n ingress-nginx ingress-nginx-controller -o jsonpath='{.spec.clusterIP}')
+
 export AWS_ACCOUNT_ID="none"
 if [ "$aws" == "true" ]; then
   export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 fi
 
 if [ "$aws" == "true" ]; then
-  cp resources/aws/flux/* cluster/flux
-  cp resources/aws/templates/* cluster/templates
-  git add cluster/flux
-  git add cluster/templates
+  cp $(local_or_global resources/aws/flux/)* mgmt-cluster/flux
+  cp $(local_or_global resources/aws/templates/)* mgmt-cluster/templates
+  git add mgmt-cluster/flux
+  git add mgmt-cluster/templates
 fi
 
 if [ "$capi" == "true" ]; then
-  cp resources/capi/flux/* cluster/flux
-  cp resources/capi/namespace/* cluster/namespace
-  git add cluster/flux
-  git add cluster/namespace
+  cp $(local_or_global resources/capi/flux/)* mgmt-cluster/flux
+  cp $(local_or_global resources/capi/namespace/)* mgmt-cluster/namespace
+  git add mgmt-cluster/flux
+  git add mgmt-cluster/namespace
 fi
 
 export namespace=flux-system
-cat resources/cluster-config.yaml | envsubst > cluster/config/cluster-config.yaml
+cat $(local_or_global resources/cluster-config.yaml) | envsubst > mgmt-cluster/config/cluster-config.yaml
+git add mgmt-cluster/config/cluster-config.yaml
+
 export namespace=\$\{nameSpace\}
-git add cluster/config/cluster-config.yaml
-cat resources/cluster-config.yaml | envsubst > cluster/namespace/cluster-config.yaml
-git add cluster/namespace/cluster-config.yaml
+cat $(local_or_global resources/cluster-config.yaml) | envsubst > mgmt-cluster/namespace/cluster-config.yaml
+git add mgmt-cluster/namespace/cluster-config.yaml
 if [[ `git status --porcelain` ]]; then
   git commit -m "update cluster config"
   git pull
@@ -152,7 +160,7 @@ vault-secrets-config.sh
 set -e
 
 if [ "$aws_capi" == "true" ]; then
-  clusterawsadm bootstrap iam create-cloudformation-stack --config resources/clusterawsadm.yaml --region $AWS_REGION
+  clusterawsadm bootstrap iam create-cloudformation-stack --config $(local_or_global resources/clusterawsadm.yaml) --region $AWS_REGION
 
   export AWS_B64ENCODED_CREDENTIALS=$(clusterawsadm bootstrap credentials encode-as-profile)
 
