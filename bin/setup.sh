@@ -57,8 +57,9 @@ fi
 if [ $bootstrap -eq 0 ]; then
   echo "flux-system namespace already. skipping bootstrap"
 else
-  kubectl apply -f ${config_dir}/mgmt-cluster/addons/flux
+  kubectl apply --server-side -f ${config_dir}/mgmt-cluster/addons/flux
   source resources/github-secrets.sh
+  # flux bootstrap github --token-auth --token $GITHUB_TOKEN_READ --owner $GITHUB_MGMT_ORG --repository $GITHUB_MGMT_ORG --path $target_path/flux
   kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Secret
@@ -89,6 +90,13 @@ data:
   tls.crt: $(base64 -i resources/CA.cer)
   tls.key: $(base64 -i resources/CA.key)
 EOF
+
+namespace_list=$(local_or_global resources/local-ca-namespaces.txt)
+export CA_CERT_BASE64=$(base64 -i resources/CA.cer)
+for nameSpace in $(cat $namespace_list); do
+  export nameSpace
+  cat $(local_or_global resources/local-ca.yaml) |envsubst | kubectl apply -f -
+done
 
 kubectl wait --timeout=5m --for=condition=Ready kustomizations.kustomize.toolkit.fluxcd.io -n flux-system flux-system
 
