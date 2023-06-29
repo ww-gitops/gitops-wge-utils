@@ -242,9 +242,9 @@ fi
 # Wait for dex to start
 kubectl wait --timeout=5m --for=condition=Ready kustomization/dex -n flux-system
 
-set +e
-vault-oidc-config.sh
-set -e
+# set +e
+# vault-oidc-config.sh
+# set -e
 
 if [ "$aws" == "true" ]; then
   echo "Waiting for aws to be applied"
