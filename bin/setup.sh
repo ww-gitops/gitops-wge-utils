@@ -48,18 +48,24 @@ kubectl wait --for=condition=Available  -n kube-system deployment coredns
 
 git config pull.rebase true  
 
+# Install Flux if not present or force reinstall option set
+
 if [ $bootstrap -eq 0 ]; then
   set +e
   kubectl get ns | grep flux-system
   bootstrap=$?
   set -e
 fi
+
 if [ $bootstrap -eq 0 ]; then
   echo "flux-system namespace already. skipping bootstrap"
 else
   kubectl apply --server-side -f ${config_dir}/mgmt-cluster/addons/flux
   source resources/github-secrets.sh
   # flux bootstrap github --token-auth --token $GITHUB_TOKEN_READ --owner $GITHUB_MGMT_ORG --repository $GITHUB_MGMT_ORG --path $target_path/flux
+
+  # Create a secret for flux to use to access the git repo backing the cluster
+
   kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Secret
@@ -70,14 +76,21 @@ data:
   username: $(echo -n "git" | base64)
   password: $(echo -n "$GITHUB_TOKEN_READ" | base64)
 EOF
+
+  # Create flux-system GitRepository and Kustomization
+
   cat $(local_or_global resources/gotk-sync.yaml) | envsubst | kubectl apply -f -
 fi
+
+# Create a CA Certificate for the ingress controller to use
 
 if [ -f resources/CA.cer ]; then
   echo "Certificate Authority already exists"
 else
   ca-cert.sh
 fi
+
+# Install CA Certificate secret so Cert Manager can issue certificates using our CA
 
 kubectl apply -f ${config_dir}/mgmt-cluster/addons/cert-manager/namespace.yaml
 kubectl apply -f - <<EOF
@@ -90,6 +103,8 @@ data:
   tls.crt: $(base64 -i resources/CA.cer)
   tls.key: $(base64 -i resources/CA.key)
 EOF
+
+# Add CA Certificates to namespaces where it is required
 
 namespace_list=$(local_or_global resources/local-ca-namespaces.txt)
 export CA_CERT_BASE64=$(base64 -i resources/CA.cer)
