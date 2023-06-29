@@ -8,7 +8,7 @@ set -euo pipefail
 
 function usage()
 {
-    echo "usage ${0} [--debug] [--flux-bootstrap]" >&2
+    echo "usage ${0} [--debug] [--flux-bootstrap] [--flux-reset]" >&2
     echo "This script will initialize docker kubernetes" >&2
     echo "  --debug: emmit debugging information" >&2
     echo "  --flux-bootstrap: force flux bootstrap" >&2
@@ -25,6 +25,7 @@ function args() {
           "--debug") set -x;;
           "--reset") reset=1;;
           "--flux-bootstrap") bootstrap=1;;
+          "--flux-reset") reset=1;;
                "-h") usage; exit;;
            "--help") usage; exit;;
                "-?") usage; exit;;
@@ -60,6 +61,10 @@ fi
 if [ $bootstrap -eq 0 ]; then
   echo "flux-system namespace already. skipping bootstrap"
 else
+  if [ $reset -eq 1 ]; then
+    echo "uninstalling flux"
+    flux uninstall --silent --keep-namespace 
+  fi
   kubectl apply --server-side -f ${config_dir}/mgmt-cluster/addons/flux
   source resources/github-secrets.sh
   # flux bootstrap github --token-auth --token $GITHUB_TOKEN_READ --owner $GITHUB_MGMT_ORG --repository $GITHUB_MGMT_ORG --path $target_path/flux
@@ -113,6 +118,7 @@ for nameSpace in $(cat $namespace_list); do
   cat $(local_or_global resources/local-ca.yaml) |envsubst | kubectl apply -f -
 done
 
+echo "Waiting for flux to flux-system Kustomization to be ready"
 kubectl wait --timeout=5m --for=condition=Ready kustomizations.kustomize.toolkit.fluxcd.io -n flux-system flux-system
 
 # Wait for ingress controller to start
