@@ -145,7 +145,7 @@ EOF
 # Add CA Certificates to namespaces where it is required
 
 namespace_list=$(local_or_global resources/local-ca-namespaces.txt)
-export CA_CERT_BASE64=$(base64 -i resources/CA.cer)
+export CA_CERT="$(cat resources/CA.cer)"
 for nameSpace in $(cat $namespace_list); do
   export nameSpace
   cat $(local_or_global resources/local-ca.yaml) |envsubst | kubectl apply -f -
