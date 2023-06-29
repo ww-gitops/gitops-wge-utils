@@ -74,7 +74,8 @@ else
       fi
     fi
   fi
-  kubectl apply -f ${config_dir}/mgmt-cluster/addons/flux
+  # kubectl apply -f ${config_dir}/mgmt-cluster/addons/flux
+  kustomize build ${config_dir}/mgmt-cluster/addons/flux | kubectl apply -f-
   source resources/github-secrets.sh
   # flux bootstrap github --token-auth --token $GITHUB_TOKEN_WRITE --owner $GITHUB_MGMT_ORG --repository $GITHUB_MGMT_REPO --path $target_path/flux
 
