@@ -65,11 +65,11 @@ else
     echo "uninstalling flux"
     flux uninstall --silent --keep-namespace 
   fi
-  kubectl apply --server-side -f ${config_dir}/mgmt-cluster/addons/flux
+  # kubectl apply --server-side -f ${config_dir}/mgmt-cluster/addons/flux
   source resources/github-secrets.sh
-  # flux bootstrap github --token-auth --token $GITHUB_TOKEN_READ --owner $GITHUB_MGMT_ORG --repository $GITHUB_MGMT_ORG --path $target_path/flux
+  flux bootstrap github --token-auth --token $GITHUB_TOKEN_WRITE--owner $GITHUB_MGMT_ORG --repository $GITHUB_MGMT_ORG --path $target_path/flux
 
-  # Create a secret for flux to use to access the git repo backing the cluster
+  # Re create a secret for flux to use to access the git repo backing the cluster, using reasd only token
 
   kubectl apply -f - <<EOF
 apiVersion: v1
@@ -84,7 +84,23 @@ EOF
 
   # Create flux-system GitRepository and Kustomization
 
-  cat $(local_or_global resources/gotk-sync.yaml) | envsubst | kubectl apply -f -
+  cat $(local_or_global resources/gotk-sync.yaml) | envsubst > $target_path/flux/flux-system/gotk-sync.yaml
+  git add $target_path/flux/flux-system/gotk-sync.yaml
+  if [[ `git status --porcelain` ]]; then
+    git commit -m "update flux-system gotk-sync.yaml"
+    git pull
+    git push
+  fi
+  kubectl apply -f $target_path/flux/flux-system/gotk-sync.yaml
+
+  rm -rf $target_path/flux/flux-system/gotk-components.yaml
+  rm -rf $target_path/flux/flux-system/kustomization.yaml
+  if [[ `git status --porcelain` ]]; then
+    git commit -m "remove flux-system gotk-components.yaml and kustomization.yaml from cluster repo"
+    git pull
+    git push
+  fi
+
 fi
 
 # Create a CA Certificate for the ingress controller to use
