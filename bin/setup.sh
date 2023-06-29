@@ -63,11 +63,20 @@ if [ $bootstrap -eq 0 ]; then
 else
   if [ $reset -eq 1 ]; then
     echo "uninstalling flux"
-    flux uninstall --silent --keep-namespace 
+    flux uninstall --silent --keep-namespace
+    if [ -e $target_path/flux/flux-system ]; then
+      rm -rf $target_path/flux/flux-system
+      git add $target_path/flux/flux-system
+      if [[ `git status --porcelain` ]]; then
+        git commit -m "remove flux-system from cluster repo"
+        git pull
+        git push
+      fi
+    fi
   fi
-  # kubectl apply --server-side -f ${config_dir}/mgmt-cluster/addons/flux
+  kubectl apply -f ${config_dir}/mgmt-cluster/addons/flux
   source resources/github-secrets.sh
-  flux bootstrap github --token-auth --token $GITHUB_TOKEN_WRITE--owner $GITHUB_MGMT_ORG --repository $GITHUB_MGMT_ORG --path $target_path/flux
+  # flux bootstrap github --token-auth --token $GITHUB_TOKEN_WRITE --owner $GITHUB_MGMT_ORG --repository $GITHUB_MGMT_REPO --path $target_path/flux
 
   # Re create a secret for flux to use to access the git repo backing the cluster, using reasd only token
 
@@ -84,6 +93,8 @@ EOF
 
   # Create flux-system GitRepository and Kustomization
 
+  # git pull
+  mkdir -p $target_path/flux/flux-system
   cat $(local_or_global resources/gotk-sync.yaml) | envsubst > $target_path/flux/flux-system/gotk-sync.yaml
   git add $target_path/flux/flux-system/gotk-sync.yaml
   if [[ `git status --porcelain` ]]; then
@@ -91,16 +102,21 @@ EOF
     git pull
     git push
   fi
+
   kubectl apply -f $target_path/flux/flux-system/gotk-sync.yaml
 
-  rm -rf $target_path/flux/flux-system/gotk-components.yaml
-  rm -rf $target_path/flux/flux-system/kustomization.yaml
-  if [[ `git status --porcelain` ]]; then
-    git commit -m "remove flux-system gotk-components.yaml and kustomization.yaml from cluster repo"
-    git pull
-    git push
-  fi
-
+  # flux suspend kustomization flux-system
+  # rm -rf $target_path/flux/flux-system/gotk-components.yaml
+  # rm -rf $target_path/flux/flux-system/kustomization.yaml
+  # git add $target_path/flux/flux-system/gotk-components.yaml
+  # git add $target_path/flux/flux-system/kustomization.yaml
+  # if [[ `git status --porcelain` ]]; then
+  #   git commit -m "remove flux-system gotk-components.yaml and kustomization.yaml from cluster repo"
+  #   git pull
+  #   git push
+  # fi
+  # 
+  # flux resume kustomization flux-system
 fi
 
 # Create a CA Certificate for the ingress controller to use
