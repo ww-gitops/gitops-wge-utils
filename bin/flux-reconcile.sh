@@ -46,7 +46,8 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $SCRIPT_DIR/envs.sh
 
 flux reconcile source git flux-system 
-flux reconcile source git flux-components
+flux reconcile source git global-config
+flux reconcile kustomization flux-components
 flux reconcile kustomization cert-config 
 flux reconcile kustomization vault
 flux reconcile kustomization secrets 

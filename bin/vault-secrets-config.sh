@@ -38,7 +38,7 @@ args "$@"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $SCRIPT_DIR/envs.sh
 
-source resources/github-config.sh
+source $(local_or_global resources/github-config.sh)
 source resources/github-secrets.sh
 
 export VAULT_ADDR="https://vault.kubernetes.docker.internal"
