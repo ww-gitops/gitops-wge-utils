@@ -256,11 +256,11 @@ if [ "$aws" == "true" ]; then
 fi
 
 if [ "$ecr_repos" == "true" ]; then
-  cp $(local_or_global resource-descriptions/templates/wge/applications.yaml) resource-descriptions/wge/applications.yaml
-  if [ ! -e resource-descriptions/wge/applications.yaml ]; then
+  if [ ! -e resource-descriptions/wge/clusters.yaml ]; then
+    mkdir -p resource-descriptions/wge
     cat $(local_or_global resource-descriptions/templates/wge/clusters.yaml) | envsubst > resource-descriptions/wge/clusters.yaml
+    git add resource-descriptions/wge/clusters.yaml
   fi
-  git add resource-descriptions/wge
 
   cp $(local_or_global resources/ecr/flux.yaml) mgmt-cluster/flux/ecr.yaml
   git add mgmt-cluster/flux/ecr.yaml
