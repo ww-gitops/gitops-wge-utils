@@ -75,7 +75,7 @@ fi
 
 
 if [ -n "${hostname}" ]; then
-  $scp_cmd -r kind-leafs ${username_str}${hostname}:/tmp
+  $scp_cmd -r ${utils_dir}/kind-leafs ${username_str}${hostname}:/tmp
 
   echo "export cluster_name=${cluster_name}" > /tmp/${location}-${cluster_name}-env.sh
   echo "export hostname=${hostname}" >> /tmp/${location}-${cluster_name}-env.sh
@@ -85,7 +85,7 @@ if [ -n "${hostname}" ]; then
 else
   export hostname=localhost
   
-  kind-leafs/leaf-remove.sh $debug_str
+  ${utils_dir}/kind-leafs/leaf-remove.sh $debug_str
 fi
 
 
