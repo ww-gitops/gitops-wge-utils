@@ -74,6 +74,13 @@ if [ -n "${hostname}" ]; then
   echo "export cluster_name=${cluster_name}" >> /tmp/${location}-${cluster_name}-env.sh
   echo "export hostname=${hostname}" >> /tmp/${location}-${cluster_name}-env.sh
   echo "export KUBECONFIG=/tmp/${cluster_name}.kubeconfig" >> /tmp/${location}-${cluster_name}-env.sh
+  echo "export AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}" >> /tmp/${location}-${cluster_name}-env.sh
+  echo "export AWS_REGION=${AWS_REGION}" >> /tmp/${location}-${cluster_name}-env.sh
+  echo "export AWS_TAG_creator=${AWS_TAG_creator}" >> /tmp/${location}-${cluster_name}-env.sh
+  echo "export AWS_TAG_customer=${AWS_TAG_customer}" >> /tmp/${location}-${cluster_name}-env.sh
+  echo "export AWS_TAG_projectGid=${AWS_TAG_projectGid}" >> /tmp/${location}-${cluster_name}-env.sh
+  echo "export PREFIX_NAME=${PREFIX_NAME}" >> /tmp/${location}-${cluster_name}-env.sh
+  
   $scp_cmd -r /tmp/${location}-${cluster_name}-env.sh ${username_str}${hostname}:/tmp/env.sh >/dev/null
 
   $scp_cmd -r $(local_or_global resources/kind.yaml) ${username_str}${hostname}:/tmp >/dev/null
