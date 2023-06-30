@@ -53,6 +53,7 @@ args "$@"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $SCRIPT_DIR/envs.sh
+utils_dir="$(realpath $SCRIPT_DIR/..)"
 
 push=""
 location="${hostname:-localhost}"

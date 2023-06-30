@@ -119,7 +119,7 @@ if [[ `git status --porcelain` ]]; then
   git push
 fi
 
-cat /tmp/$GITHUB_GLOBAL_CONFIG_REPO/resources/gotk-sync.yaml | envsubst | kubectl apply -f -
+cat $(local_or_global resources/gotk-sync.yaml) | envsubst | kubectl apply -f -
 
 # Setup WGE access to the cluster
 

@@ -87,15 +87,16 @@ do
   sleep 1
 done
 
-git clone https:/github.com/$GITHUB_GLOBAL_CONFIG_ORG/$GITHUB_GLOBAL_CONFIG_REPO /tmp/$GITHUB_GLOBAL_CONFIG_REPO
+rm -rf $HOME/$GITHUB_GLOBAL_CONFIG_REPO
+git clone https://github.com/$GITHUB_GLOBAL_CONFIG_ORG/$GITHUB_GLOBAL_CONFIG_REPO $HOME/$GITHUB_GLOBAL_CONFIG_REPO
 
 set +e
 kubectl get ns | grep flux-system
 bootstrap=$?
 set -e
 
-if [ $bootstrap -eq 0 ]; then
-  kustomize build /tmp/$GITHUB_GLOBAL_CONFIG_REPO/mgmt-cluster/addons/flux | kubectl apply -f-
+if [ $bootstrap -eq 1 ]; then
+  kustomize build $HOME/$GITHUB_GLOBAL_CONFIG_REPO/mgmt-cluster/addons/flux | kubectl apply -f-
 fi
 
 kubectl apply -f - <<EOF
@@ -106,7 +107,5 @@ metadata:
   namespace: flux-system
 data:
   username: $(echo -n "git" | base64)
-  password: $(echo -n "$GITHUB_TOKEN_READ" | base64)
+  password: $(echo -n "$GITHUB_TOKEN_READ" | base64 -w 0)
 EOF
-
-
