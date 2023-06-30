@@ -148,7 +148,8 @@ namespace_list=$(local_or_global resources/local-ca-namespaces.txt)
 export CA_CERT="$(cat resources/CA.cer)"
 for nameSpace in $(cat $namespace_list); do
   export nameSpace
-  cat $(local_or_global resources/local-ca.yaml) |envsubst | kubectl apply -f -
+  cat $(local_or_global resources/local-ca-ns.yaml) |envsubst | kubectl apply -f -
+  kubectl create configmap local-ca -n ${nameSpace} --from-file=resources/CA.cer --dry-run -o yaml | kubectl apply -f -
 done
 
 echo "Waiting for flux to flux-system Kustomization to be ready"
