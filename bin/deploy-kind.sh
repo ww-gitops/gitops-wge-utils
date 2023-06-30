@@ -67,6 +67,7 @@ if [ -n "${hostname}" ]; then
   export leaf_target_path="clusters/kind/$hostname-$cluster_name"
   cat .envrc | grep "export GITHUB_" > /tmp/${location}-${cluster_name}-env.sh
   echo "export GITHUB_TOKEN_READ=${GITHUB_TOKEN_READ}" >> /tmp/${location}-${cluster_name}-env.sh
+  echo "export GITHUB_TOKEN_WRITE=${GITHUB_TOKEN_WRITE}" >> /tmp/${location}-${cluster_name}-env.sh
   echo "export target_path=${leaf_target_path}" >> /tmp/${location}-${cluster_name}-env.sh
   echo "export listen_address=${listen_address}" >> /tmp/${location}-${cluster_name}-env.sh
   echo "export listen_port=${listen_port}" >> /tmp/${location}-${cluster_name}-env.sh
@@ -88,7 +89,6 @@ if [ -n "${hostname}" ]; then
 
   echo "Cluster ${cluster_name} deployed on ${hostname}, use the following KUBECONFIG to access it:"
   echo "export KUBECONFIG=~/.kube/${hostname}-${cluster_name}.kubeconfig"
-  export KUBECONFIG=~/.kube/${hostname}-${cluster_name}.kubeconfig
 else
   if [ -n "$install" ]; then
     kind-leafs/leaf-install.sh $debug_str
@@ -97,15 +97,29 @@ else
   cp $(local_or_global resources/kind.yaml) /tmp
 
   export hostname=localhost
-  export target_path="clusters/kind/$hostname-$cluster_name"
   kind-leafs/leaf-deploy.sh $debug_str
 
   cp /tmp/kubeconfig ~/.kube/localhost-${cluster-name}.kubeconfig
 
   echo "Cluster ${cluster_name} deployed on localhost, use the following KUBECONFIG to access it:"
   echo "export KUBECONFIG=~/.kube/localhost-${cluster_name}.kubeconfig" 
-  export KUBECONFIG=~/.kube/localhost-${cluster_name}.kubeconfig
 fi
+
+export KUBECONFIG=~/.kube/${hostname}-${cluster_name}.kubeconfig
+
+# Create flux-system GitRepository and Kustomization
+
+export target_path="clusters/kind/$hostname-$cluster_name"
+mkdir -p $target_path/flux/flux-system
+cat $(local_or_global resources/gotk-sync.yaml) | envsubst > $target_path/flux/flux-system/gotk-sync.yaml
+git add $target_path/flux/flux-system/gotk-sync.yaml
+if [[ `git status --porcelain` ]]; then
+  git commit -m "update flux-system gotk-sync.yaml for cluster $hostname-$cluster_name"
+  git pull
+  git push
+fi
+
+cat /tmp/$GITHUB_GLOBAL_CONFIG_REPO/resources/gotk-sync.yaml | envsubst | kubectl apply -f -
 
 # Setup WGE access to the cluster
 

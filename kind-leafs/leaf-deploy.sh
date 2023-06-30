@@ -89,7 +89,14 @@ done
 
 git clone https:/github.com/$GITHUB_GLOBAL_CONFIG_ORG/$GITHUB_GLOBAL_CONFIG_REPO /tmp/$GITHUB_GLOBAL_CONFIG_REPO
 
-kubectl apply -f /tmp/$GITHUB_GLOBAL_CONFIG_REPO/mgmt-cluster/addons/flux
+set +e
+kubectl get ns | grep flux-system
+bootstrap=$?
+set -e
+
+if [ $bootstrap -eq 0 ]; then
+  kustomize build /tmp/$GITHUB_GLOBAL_CONFIG_REPO/mgmt-cluster/addons/flux | kubectl apply -f-
+fi
 
 kubectl apply -f - <<EOF
 apiVersion: v1
@@ -102,4 +109,4 @@ data:
   password: $(echo -n "$GITHUB_TOKEN_READ" | base64)
 EOF
 
-cat /tmp/$GITHUB_GLOBAL_CONFIG_REPO/resources/gotk-sync.yaml | envsubst | kubectl apply -f -
+
