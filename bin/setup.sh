@@ -44,15 +44,16 @@ args "$@"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $SCRIPT_DIR/envs.sh
 
-echo "Waiting for cluster to be ready"
-kubectl wait --for=condition=Available  -n kube-system deployment coredns
-
-git config pull.rebase true  
 
 if [[ "$OSTYPE" == "linux"* ]]; then
   delpoy-kind --cluster-name $CLUSTER_NAME
   export KUBECONFIG=~/.kube/localhost-${CLUSTER_NAME}.kubeconfig
 fi
+
+echo "Waiting for cluster to be ready"
+kubectl wait --for=condition=Available  -n kube-system deployment coredns
+
+git config pull.rebase true  
 
 # Install Flux if not present or force reinstall option set
 
