@@ -121,20 +121,5 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   done
 else
   echo "Deleting Kind cluster and recreating" 
-  kind delete cluster
-  kind create cluster
-
-  # Wait for kubernetes to be ready
-  while ( true ); do
-    echo "Waiting for kubernetes to start"
-    started="$(docker ps -q --filter 'name=k8s_kube-apiserver')"
-    if [ -n "$started" ]; then
-      break
-    fi
-    sleep 1
-  done
+  remove-kind --cluster-name $CLUSTER_NAME
 fi
-
-
-
-

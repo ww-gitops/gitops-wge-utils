@@ -49,6 +49,11 @@ kubectl wait --for=condition=Available  -n kube-system deployment coredns
 
 git config pull.rebase true  
 
+if [[ "$OSTYPE" == "linux"* ]]; then
+  delpoy-kind --cluster-name $CLUSTER_NAME
+  export KUBECONFIG=~/.kube/localhost-${CLUSTER_NAME}.kubeconfig
+fi
+
 # Install Flux if not present or force reinstall option set
 
 if [ $bootstrap -eq 0 ]; then
