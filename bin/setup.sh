@@ -45,7 +45,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $SCRIPT_DIR/envs.sh
 
 cat $(local_or_global resources/flux.yaml) | envsubst > $target_path/flux/flux.yaml
-git add $target_path/flux/flux-system/gotk-sync.yaml
+git add $target_path/flux/flux.yaml
 if [[ `git status --porcelain` ]]; then
   git commit -m "Add flux.yaml"
   git pull
