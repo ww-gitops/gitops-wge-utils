@@ -173,10 +173,12 @@ if [ "$wait" == "1" ]; then
   kubectl wait --timeout=5m --for=condition=Ready kustomizations.kustomize.toolkit.fluxcd.io -n flux-system flux-system
 fi
 
-# Wait for ingress controller to start
-echo "Waiting for ingress controller to start"
-kubectl wait --timeout=5m --for=condition=Ready kustomizations.kustomize.toolkit.fluxcd.io -n flux-system nginx
-sleep 5
+if [ "$wait" == "1" ]; then
+  # Wait for ingress controller to start
+  echo "Waiting for ingress controller to start"
+  kubectl wait --timeout=5m --for=condition=Ready kustomizations.kustomize.toolkit.fluxcd.io -n flux-system nginx
+  sleep 5
+fi
 export CLUSTER_IP=$(kubectl get svc -n ingress-nginx ingress-nginx-controller -o jsonpath='{.spec.clusterIP}')
 
 export AWS_ACCOUNT_ID="none"
@@ -267,9 +269,10 @@ kubectl wait --timeout=5m --for=condition=Ready kustomization/dex -n flux-system
 # set -e
 
 if [ "$aws" == "true" ]; then
-  echo "Waiting for aws to be applied"
-  kubectl wait --timeout=5m --for=condition=Ready kustomization/aws -n flux-system
-
+  if [ "$wait" == "1" ]; then
+    echo "Waiting for aws to be applied"
+    kubectl wait --timeout=5m --for=condition=Ready kustomization/aws -n flux-system
+  fi
   ${config_dir}/terraform/bin/tf-apply.sh aws-key-pair
 fi
 
