@@ -275,6 +275,12 @@ if [ "$ecr_repos" == "true" ]; then
     git add resource-descriptions/wge/clusters.yaml
   fi
 
+  if [ ! -e resource-descriptions/wge/namespaces.yaml ]; then
+    mkdir -p resource-descriptions/wge
+    cat $(local_or_global resource-descriptions/templates/wge/namespaces.yaml) | envsubst > resource-descriptions/wge/namespaces.yaml
+    git add resource-descriptions/wge/namespaces.yaml
+  fi
+
   cp $(local_or_global resources/ecr/flux.yaml) mgmt-cluster/flux/ecr.yaml
   git add mgmt-cluster/flux/ecr.yaml
   if [[ `git status --porcelain` ]]; then
