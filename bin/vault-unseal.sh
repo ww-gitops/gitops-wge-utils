@@ -38,7 +38,7 @@ args "$@"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $SCRIPT_DIR/envs.sh
 
-export VAULT_ADDR="https://vault.kubernetes.docker.internal"
+export VAULT_ADDR="https://vault.${local_dns}"
 
 if [ "$(vault status --format=json | jq -r '.sealed')" == "false" ]; then
   echo "Vault already unsealed"

@@ -44,6 +44,13 @@ args "$@"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $SCRIPT_DIR/envs.sh
 
+cat $(local_or_global resources/flux.yaml) | envsubst > $target_path/flux/flux.yaml
+git add $target_path/flux/flux-system/gotk-sync.yaml
+if [[ `git status --porcelain` ]]; then
+  git commit -m "Add flux.yaml"
+  git pull
+  git push
+fi
 
 if [[ "$OSTYPE" == "linux"* ]]; then
   delpoy-kind --cluster-name $CLUSTER_NAME
