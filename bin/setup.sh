@@ -8,13 +8,16 @@ set -euo pipefail
 
 function usage()
 {
-    echo "usage ${0} [--debug] [--flux-bootstrap] [--flux-reset]" >&2
+    echo "usage ${0} [--debug] [--flux-bootstrap] [--flux-reset] [--no-wait]" >&2
     echo "This script will initialize docker kubernetes" >&2
     echo "  --debug: emmit debugging information" >&2
     echo "  --flux-bootstrap: force flux bootstrap" >&2
+    echo "  --flux-reset: unistall flux before reinstall" >&2
+    echo "  --no-wait: do not wait for flux to be ready" >&2
 }
 
 function args() {
+  wait=1
   bootstrap=0
   reset=0
   arg_list=( "$@" )
@@ -23,7 +26,7 @@ function args() {
   while (( arg_index < arg_count )); do
     case "${arg_list[${arg_index}]}" in
           "--debug") set -x;;
-          "--reset") reset=1;;
+          "--no-wait") wait=0;;
           "--flux-bootstrap") bootstrap=1;;
           "--flux-reset") reset=1;;
                "-h") usage; exit;;
@@ -165,8 +168,10 @@ for nameSpace in $(cat $namespace_list); do
   kubectl create configmap local-ca -n ${nameSpace} --from-file=resources/CA.cer --dry-run=client -o yaml | kubectl apply -f -
 done
 
-echo "Waiting for flux to flux-system Kustomization to be ready"
-kubectl wait --timeout=5m --for=condition=Ready kustomizations.kustomize.toolkit.fluxcd.io -n flux-system flux-system
+if [ "$wait" == "1" ]; then
+  echo "Waiting for flux to flux-system Kustomization to be ready"
+  kubectl wait --timeout=5m --for=condition=Ready kustomizations.kustomize.toolkit.fluxcd.io -n flux-system flux-system
+fi
 
 # Wait for ingress controller to start
 echo "Waiting for ingress controller to start"
