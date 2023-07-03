@@ -37,8 +37,6 @@ args "$@"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $SCRIPT_DIR/envs.sh
 
-export VAULT_ADDR="https://vault.${dns_suffix}"
-
 if [ "$(vault status --format=json | jq -r '.initialized')" == "true" ]; then
   echo "Vault already initialized"
   exit 0
