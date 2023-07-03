@@ -49,6 +49,9 @@ else
   sudo apt-get update
   sudo apt-get install -y ca-certificates curl jq iproute2 git unzip apt-transport-https gnupg2 vim
   curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  rm -rf kustomize
+  curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+  sudo mv kustomize /usr/local/bin
   sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
   rm kubectl
   curl -s https://fluxcd.io/install.sh | bash

@@ -57,7 +57,7 @@ if [ $delete_tfs -eq 1 ]; then
       if [[ ( $tf == "aws-dynamo-table" ||  $tf == "aws-s3-bucket" ) && $ns == "flux-system" ]]; then
         continue
       fi
-      kubectl delete terraforms.infra.contrib.fluxcd.io -n $ns $tf
+      kubectl delete terraforms.infra.contrib.fluxcd.io -n $ns $tf &
     done
   done
 
