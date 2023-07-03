@@ -61,6 +61,12 @@ utils_dir="$(realpath $SCRIPT_DIR/..)"
 source resources/github-secrets.sh
 location="${hostname:-localhost}"
 
+
+export AWS_ACCOUNT_ID="none"
+if [ "$aws" == "true" ]; then
+  export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
+fi
+
 if [ -n "${hostname}" ]; then
   $scp_cmd -r ${utils_dir}/kind-leafs ${username_str}${hostname}:/tmp >/dev/null
 

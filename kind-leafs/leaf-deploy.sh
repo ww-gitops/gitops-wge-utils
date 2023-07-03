@@ -50,7 +50,7 @@ if [ $ret -ne 0 ]; then
   cat /tmp/kind.yaml | envsubst > /tmp/kind-config.yaml
 
   mkdir -p /tmp/kubernetes/policies
-  cp -f /tmp/audit.yaml /tmp/kubernetes/policies/audit.yaml
+  sudo cp -f /tmp/audit.yaml /tmp/kubernetes/policies/audit.yaml
   rm -f /tmp/kubeconfig
   kind create cluster --name ${cluster_name} --config /tmp/kind-config.yaml
 
