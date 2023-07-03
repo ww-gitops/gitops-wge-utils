@@ -171,7 +171,7 @@ kubectl wait --timeout=5m --for=condition=Ready kustomizations.kustomize.toolkit
 # Wait for ingress controller to start
 echo "Waiting for ingress controller to start"
 kubectl wait --timeout=5m --for=condition=Ready kustomizations.kustomize.toolkit.fluxcd.io -n flux-system nginx
-
+sleep 5
 export CLUSTER_IP=$(kubectl get svc -n ingress-nginx ingress-nginx-controller -o jsonpath='{.spec.clusterIP}')
 
 export AWS_ACCOUNT_ID="none"
