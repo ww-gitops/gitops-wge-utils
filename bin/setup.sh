@@ -289,8 +289,15 @@ if [ "$ecr_repos" == "true" ]; then
     git add resource-descriptions/wge/namespaces.yaml
   fi
 
+  if [ ! -e resource-descriptions/ci/gitopset.yaml ]; then
+    mkdir -p ci
+    cat $(local_or_global resource-descriptions/ci/gitopset.yaml) | envsubst > ci/gitopset.yaml
+    git add ci/gitopset.yaml
+  fi
+
   cp $(local_or_global resources/ecr/flux.yaml) mgmt-cluster/flux/ecr.yaml
   git add mgmt-cluster/flux/ecr.yaml
+  
   if [[ `git status --porcelain` ]]; then
     git commit -m "Add wge resource descriptions"
     git pull
