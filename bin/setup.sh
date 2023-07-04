@@ -291,8 +291,8 @@ if [ "$ecr_repos" == "true" ]; then
 
   if [ ! -e ci/gitopsset.yaml ]; then
     mkdir -p ci
-    cat $(local_or_global resource-descriptions/templates/ci/gitopsset.yaml) | envsubst > ci/gitopsset.yaml
-    git add ci/gitopsset.yaml
+    cat $(local_or_global resource-descriptions/templates/ci/namespaces.yaml) | envsubst > ci/namespaces.yaml
+    git add ci/namespaces.yaml
   fi
 
   cp $(local_or_global resources/ecr/flux.yaml) mgmt-cluster/flux/ecr.yaml
