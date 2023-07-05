@@ -56,7 +56,7 @@ if [[ `git status --porcelain` ]]; then
 fi
 
 if [[ "$OSTYPE" == "linux"* ]]; then
-  delpoy-kind --cluster-name $CLUSTER_NAME
+  deploy-kind.sh --cluster-name $CLUSTER_NAME
   export KUBECONFIG=~/.kube/localhost-${CLUSTER_NAME}.kubeconfig
 fi
 

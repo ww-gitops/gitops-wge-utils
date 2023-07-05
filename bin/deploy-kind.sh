@@ -110,7 +110,7 @@ else
   cp $(local_or_global resources/kind.yaml) /tmp
 
   export hostname=localhost
-  kind-leafs/leaf-deploy.sh $debug_str
+  ${utils_dir}/kind-leafs/leaf-deploy.sh $debug_str
 
   cp /tmp/kubeconfig ~/.kube/localhost-${cluster-name}.kubeconfig
 
