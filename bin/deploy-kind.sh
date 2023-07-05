@@ -69,7 +69,7 @@ if [ "$aws" == "true" ]; then
   export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 fi
 
-export leaf_target_path="clusters/kind/$hostname-$cluster_name"
+export leaf_target_path="clusters/kind/$location-$cluster_name"
 cat .envrc | grep "export GITHUB_" > /tmp/${location}-${cluster_name}-env.sh
 echo "export GITHUB_TOKEN_READ=${GITHUB_TOKEN_READ}" >> /tmp/${location}-${cluster_name}-env.sh
 echo "export GITHUB_TOKEN_WRITE=${GITHUB_TOKEN_WRITE}" >> /tmp/${location}-${cluster_name}-env.sh
@@ -86,7 +86,7 @@ echo "export AWS_TAG_customer=${AWS_TAG_customer}" >> /tmp/${location}-${cluster
 echo "export AWS_TAG_projectGid=${AWS_TAG_projectGid}" >> /tmp/${location}-${cluster_name}-env.sh
 echo "export PREFIX_NAME=${PREFIX_NAME}" >> /tmp/${location}-${cluster_name}-env.sh
 
-if [ -n "${hostname}" ]; then
+if [ "${hostname}" == "$localhost" ]; then
   $scp_cmd -r ${utils_dir}/kind-leafs ${username_str}${hostname}:/tmp >/dev/null
   
   $scp_cmd -r /tmp/${location}-${cluster_name}-env.sh ${username_str}${hostname}:/tmp/env.sh >/dev/null
