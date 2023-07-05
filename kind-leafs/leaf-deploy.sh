@@ -36,6 +36,7 @@ args "$@"
 
 source /tmp/env.sh
 
+
 set +e
 kind get clusters | grep -E "^${cluster_name}$" >/dev/null
 ret=$?

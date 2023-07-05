@@ -67,25 +67,25 @@ if [ "$aws" == "true" ]; then
   export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 fi
 
+export leaf_target_path="clusters/kind/$hostname-$cluster_name"
+cat .envrc | grep "export GITHUB_" > /tmp/${location}-${cluster_name}-env.sh
+echo "export GITHUB_TOKEN_READ=${GITHUB_TOKEN_READ}" >> /tmp/${location}-${cluster_name}-env.sh
+echo "export GITHUB_TOKEN_WRITE=${GITHUB_TOKEN_WRITE}" >> /tmp/${location}-${cluster_name}-env.sh
+echo "export target_path=${leaf_target_path}" >> /tmp/${location}-${cluster_name}-env.sh
+echo "export listen_address=${listen_address}" >> /tmp/${location}-${cluster_name}-env.sh
+echo "export listen_port=${listen_port}" >> /tmp/${location}-${cluster_name}-env.sh
+echo "export cluster_name=${cluster_name}" >> /tmp/${location}-${cluster_name}-env.sh
+echo "export hostname=${hostname}" >> /tmp/${location}-${cluster_name}-env.sh
+echo "export KUBECONFIG=/tmp/${cluster_name}.kubeconfig" >> /tmp/${location}-${cluster_name}-env.sh
+echo "export AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}" >> /tmp/${location}-${cluster_name}-env.sh
+echo "export AWS_REGION=${AWS_REGION}" >> /tmp/${location}-${cluster_name}-env.sh
+echo "export AWS_TAG_creator=${AWS_TAG_creator}" >> /tmp/${location}-${cluster_name}-env.sh
+echo "export AWS_TAG_customer=${AWS_TAG_customer}" >> /tmp/${location}-${cluster_name}-env.sh
+echo "export AWS_TAG_projectGid=${AWS_TAG_projectGid}" >> /tmp/${location}-${cluster_name}-env.sh
+echo "export PREFIX_NAME=${PREFIX_NAME}" >> /tmp/${location}-${cluster_name}-env.sh
+
 if [ -n "${hostname}" ]; then
   $scp_cmd -r ${utils_dir}/kind-leafs ${username_str}${hostname}:/tmp >/dev/null
-
-  export leaf_target_path="clusters/kind/$hostname-$cluster_name"
-  cat .envrc | grep "export GITHUB_" > /tmp/${location}-${cluster_name}-env.sh
-  echo "export GITHUB_TOKEN_READ=${GITHUB_TOKEN_READ}" >> /tmp/${location}-${cluster_name}-env.sh
-  echo "export GITHUB_TOKEN_WRITE=${GITHUB_TOKEN_WRITE}" >> /tmp/${location}-${cluster_name}-env.sh
-  echo "export target_path=${leaf_target_path}" >> /tmp/${location}-${cluster_name}-env.sh
-  echo "export listen_address=${listen_address}" >> /tmp/${location}-${cluster_name}-env.sh
-  echo "export listen_port=${listen_port}" >> /tmp/${location}-${cluster_name}-env.sh
-  echo "export cluster_name=${cluster_name}" >> /tmp/${location}-${cluster_name}-env.sh
-  echo "export hostname=${hostname}" >> /tmp/${location}-${cluster_name}-env.sh
-  echo "export KUBECONFIG=/tmp/${cluster_name}.kubeconfig" >> /tmp/${location}-${cluster_name}-env.sh
-  echo "export AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}" >> /tmp/${location}-${cluster_name}-env.sh
-  echo "export AWS_REGION=${AWS_REGION}" >> /tmp/${location}-${cluster_name}-env.sh
-  echo "export AWS_TAG_creator=${AWS_TAG_creator}" >> /tmp/${location}-${cluster_name}-env.sh
-  echo "export AWS_TAG_customer=${AWS_TAG_customer}" >> /tmp/${location}-${cluster_name}-env.sh
-  echo "export AWS_TAG_projectGid=${AWS_TAG_projectGid}" >> /tmp/${location}-${cluster_name}-env.sh
-  echo "export PREFIX_NAME=${PREFIX_NAME}" >> /tmp/${location}-${cluster_name}-env.sh
   
   $scp_cmd -r /tmp/${location}-${cluster_name}-env.sh ${username_str}${hostname}:/tmp/env.sh >/dev/null
 
@@ -103,6 +103,11 @@ if [ -n "${hostname}" ]; then
   echo "Cluster ${cluster_name} deployed on ${hostname}, use the following KUBECONFIG to access it:"
   echo "export KUBECONFIG=~/.kube/${hostname}-${cluster_name}.kubeconfig"
 else
+  cp -r /tmp/${location}-${cluster_name}-env.sh /tmp/env.sh
+  cp -r ${utils_dir}/kind-leafs /tmp
+  cp -r $(local_or_global resources/kind.yaml) /tmp
+  cp -r $(local_or_global resources/audit.yaml) /tmp
+
   if [ -n "$install" ]; then
     kind-leafs/leaf-install.sh $debug_str
   fi
