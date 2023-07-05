@@ -20,12 +20,13 @@ function args() {
   wait=1
   bootstrap=0
   reset=0
+  debug_str=""
   arg_list=( "$@" )
   arg_count=${#arg_list[@]}
   arg_index=0
   while (( arg_index < arg_count )); do
     case "${arg_list[${arg_index}]}" in
-          "--debug") set -x;;
+          "--debug") set -x; debug_str="--debug";;
           "--no-wait") wait=0;;
           "--flux-bootstrap") bootstrap=1;;
           "--flux-reset") reset=1;;
@@ -56,7 +57,7 @@ if [[ `git status --porcelain` ]]; then
 fi
 
 if [[ "$OSTYPE" == "linux"* ]]; then
-  deploy-kind.sh --cluster-name $CLUSTER_NAME --install
+  deploy-kind.sh $debug_str --cluster-name $CLUSTER_NAME --install
   export KUBECONFIG=~/.kube/localhost-${CLUSTER_NAME}.kubeconfig
 fi
 
