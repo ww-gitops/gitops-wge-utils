@@ -109,7 +109,7 @@ else
   cp -r $(local_or_global resources/audit.yaml) /tmp
 
   if [ -n "$install" ]; then
-    kind-leafs/leaf-install.sh $debug_str
+    ${utils_dir}/kind-leafs/leaf-install.sh $debug_str
   fi
 
   cp $(local_or_global resources/kind.yaml) /tmp
