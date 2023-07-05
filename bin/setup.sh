@@ -154,8 +154,8 @@ metadata:
   name: ca-key-pair
   namespace: cert-manager
 data:
-  tls.crt: $(base64 -i resources/CA.cer)
-  tls.key: $(base64 -i resources/CA.key)
+  tls.crt: $(base64 -w 0 -i resources/CA.cer)
+  tls.key: $(base64 -w 0 -i resources/CA.key)
 EOF
 
 # Add CA Certificates to namespaces where it is required
