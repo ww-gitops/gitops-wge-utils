@@ -121,6 +121,7 @@ else
 
   if [ -n "$mgmt" ]; then
     cp /tmp/kubeconfig ~/.kube/config
+    unset KUBECONFIG
   else
     cp /tmp/kubeconfig ~/.kube/localhost-${cluster-name}.kubeconfig
     echo "Cluster ${cluster_name} deployed on localhost, use the following KUBECONFIG to access it:"
