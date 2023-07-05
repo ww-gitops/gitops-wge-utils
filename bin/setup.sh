@@ -56,7 +56,7 @@ if [[ `git status --porcelain` ]]; then
 fi
 
 if [[ "$OSTYPE" == "linux"* ]]; then
-  deploy-kind.sh --cluster-name $CLUSTER_NAME
+  deploy-kind.sh --cluster-name $CLUSTER_NAME --install
   export KUBECONFIG=~/.kube/localhost-${CLUSTER_NAME}.kubeconfig
 fi
 
