@@ -86,7 +86,7 @@ echo "export AWS_TAG_customer=${AWS_TAG_customer}" >> /tmp/${location}-${cluster
 echo "export AWS_TAG_projectGid=${AWS_TAG_projectGid}" >> /tmp/${location}-${cluster_name}-env.sh
 echo "export PREFIX_NAME=${PREFIX_NAME}" >> /tmp/${location}-${cluster_name}-env.sh
 
-if [ "${hostname}" == "localhost" ]; then
+if [ "${hostname}" != "localhost" ]; then
   $scp_cmd -r ${utils_dir}/kind-leafs ${username_str}${hostname}:/tmp >/dev/null
   
   $scp_cmd -r /tmp/${location}-${cluster_name}-env.sh ${username_str}${hostname}:/tmp/env.sh >/dev/null
@@ -104,6 +104,7 @@ if [ "${hostname}" == "localhost" ]; then
 
   echo "Cluster ${cluster_name} deployed on ${hostname}, use the following KUBECONFIG to access it:"
   echo "export KUBECONFIG=~/.kube/${hostname}-${cluster_name}.kubeconfig"
+  export KUBECONFIG=~/.kube/${hostname}-${cluster_name}.kubeconfig
 else
   cp -r /tmp/${location}-${cluster_name}-env.sh /tmp/env.sh
   cp -r ${utils_dir}/kind-leafs /tmp
@@ -120,16 +121,15 @@ else
   ${utils_dir}/kind-leafs/leaf-deploy.sh $debug_str
 
   if [ -n "$mgmt" ]; then
-    cp /tmp/kubeconfig ~/.kube/config
-    unset KUBECONFIG
+    cp /tmp/${cluster_name}.kubeconfig ~/.kube/config
   else
-    cp /tmp/kubeconfig ~/.kube/localhost-${cluster-name}.kubeconfig
+    cp /tmp/${cluster_name}.kubeconfig ~/.kube/localhost-${cluster-name}.kubeconfig
     echo "Cluster ${cluster_name} deployed on localhost, use the following KUBECONFIG to access it:"
     echo "export KUBECONFIG=~/.kube/localhost-${cluster_name}.kubeconfig" 
+    export KUBECONFIG=~/.kube/${hostname}-${cluster_name}.kubeconfig
   fi 
 fi
 
-export KUBECONFIG=~/.kube/${hostname}-${cluster_name}.kubeconfig
 
 # Create flux-system GitRepository and Kustomization
 
