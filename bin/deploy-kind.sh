@@ -8,10 +8,10 @@ set -euo pipefail
 
 function usage()
 {
-    echo "usage ${0} [--debug] [--install] [--username <username>] [--cluster-name <hostname>]  [--hostname <hostname>] [--listen-address <ip address>] [--listen-port <port>]" >&2
+    echo "usage ${0} [--debug] [--install] [--username <username>] [--cluster-name <hostname>]  [--hostname <hostname>] [--listen-address <ip address>] [--listen-port <port>] [--mgmt]" >&2
     echo "This script will deploy Kubernetes cluster on the local machine or another host" >&2
     echo "The target machine must be accessible via ssh using hostname, add the hostname to /etc/hosts if needed first" >&2
-
+    echo "use --mgmt option when creating a mgmt cluster" >&2
 }
 
 function args() {
@@ -22,6 +22,7 @@ function args() {
   hostname="localhost"
   cluster_name="kind"
   debug_str=""
+  mgmt=""
 
   ssh_opts="-o StrictHostKeyChecking=no"
   scp_opts="-o StrictHostKeyChecking=no"
@@ -34,6 +35,7 @@ function args() {
   while (( arg_index < arg_count )); do
     case "${arg_list[${arg_index}]}" in
           "--install") install="true";;
+          "--mgmt") mgmt="true";;
           "--cluster-name") (( arg_index+=1 )); cluster_name="${arg_list[${arg_index}]}";;
           "--hostname") (( arg_index+=1 )); hostname="${arg_list[${arg_index}]}";;
           "--username") (( arg_index+=1 )); username_str="${arg_list[${arg_index}]}@";;
@@ -117,10 +119,13 @@ else
   export hostname=localhost
   ${utils_dir}/kind-leafs/leaf-deploy.sh $debug_str
 
-  cp /tmp/kubeconfig ~/.kube/localhost-${cluster-name}.kubeconfig
-
-  echo "Cluster ${cluster_name} deployed on localhost, use the following KUBECONFIG to access it:"
-  echo "export KUBECONFIG=~/.kube/localhost-${cluster_name}.kubeconfig" 
+  if [ -n "$mgmt" ]; then
+    cp /tmp/kubeconfig ~/.kube/config
+  else
+    cp /tmp/kubeconfig ~/.kube/localhost-${cluster-name}.kubeconfig
+    echo "Cluster ${cluster_name} deployed on localhost, use the following KUBECONFIG to access it:"
+    echo "export KUBECONFIG=~/.kube/localhost-${cluster_name}.kubeconfig" 
+  fi 
 fi
 
 export KUBECONFIG=~/.kube/${hostname}-${cluster_name}.kubeconfig
@@ -138,6 +143,10 @@ if [[ `git status --porcelain` ]]; then
 fi
 
 cat $(local_or_global resources/gotk-sync.yaml) | envsubst | kubectl apply -f -
+
+if [ -n "$mgmt" ]; then
+  exit
+fi
 
 # Setup WGE access to the cluster
 
