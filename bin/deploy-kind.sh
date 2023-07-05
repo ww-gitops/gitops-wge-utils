@@ -86,7 +86,7 @@ echo "export AWS_TAG_customer=${AWS_TAG_customer}" >> /tmp/${location}-${cluster
 echo "export AWS_TAG_projectGid=${AWS_TAG_projectGid}" >> /tmp/${location}-${cluster_name}-env.sh
 echo "export PREFIX_NAME=${PREFIX_NAME}" >> /tmp/${location}-${cluster_name}-env.sh
 
-if [ "${hostname}" == "$localhost" ]; then
+if [ "${hostname}" == "localhost" ]; then
   $scp_cmd -r ${utils_dir}/kind-leafs ${username_str}${hostname}:/tmp >/dev/null
   
   $scp_cmd -r /tmp/${location}-${cluster_name}-env.sh ${username_str}${hostname}:/tmp/env.sh >/dev/null
