@@ -45,10 +45,10 @@ openssl genrsa -out CA.key 4096
 openssl req -x509 -new -nodes -key CA.key -subj "/CN=paulc" -days 3650 -reqexts v3_req -extensions v3_ca -out CA.cer
 
 if [[ "$OSTYPE" == "linux"* ]]; then
-  mkdir -p /usr/local/share/ca-certificates/wge
-  chmod 755 /usr/local/share/ca-certificates/wge
-  cp CA.cer /usr/local/share/ca-certificates/wge
-  chmod 644 /usr/local/share/ca-certificates/wge/CA.cer
+  sudo mkdir -p /usr/local/share/ca-certificates/wge
+  sudo chmod 755 /usr/local/share/ca-certificates/wge
+  sudo cp CA.cer /usr/local/share/ca-certificates/wge
+  sudo chmod 644 /usr/local/share/ca-certificates/wge/CA.cer
   sudo update-ca-certificates
 fi
 
