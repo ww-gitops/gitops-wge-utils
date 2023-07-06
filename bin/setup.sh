@@ -51,7 +51,13 @@ args "$@"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $SCRIPT_DIR/envs.sh
 
-cat $(local_or_global resources/flux.yaml) | envsubst > $target_path/flux/flux.yaml
+if [[ "$OSTYPE" == "linux"* ]]; then
+  flux_suffix="-kind"
+else
+  flux_suffix=""
+fi
+
+cat $(local_or_global resources/flux${flux_suffix}.yaml) | envsubst > $target_path/flux/flux.yaml
 git add $target_path/flux/flux.yaml
 if [[ `git status --porcelain` ]]; then
   git commit -m "Add flux.yaml"

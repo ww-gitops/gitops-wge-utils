@@ -149,6 +149,7 @@ if [[ `git status --porcelain` ]]; then
 fi
 
 cat $(local_or_global resources/gotk-sync.yaml) | envsubst | kubectl apply -f -
+cat $(local_or_global resources/kind-ingress.yaml) | envsubst | kubectl apply -f -
 
 if [ -n "$mgmt" ]; then
   exit
