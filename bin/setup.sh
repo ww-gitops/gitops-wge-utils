@@ -8,12 +8,13 @@ set -euo pipefail
 
 function usage()
 {
-    echo "usage ${0} [--debug] [--flux-bootstrap] [--flux-reset] [--no-wait]" >&2
+    echo "usage ${0} [--debug] [--flux-bootstrap] [--flux-reset] [--no-wait] [--install]" >&2
     echo "This script will initialize docker kubernetes" >&2
     echo "  --debug: emmit debugging information" >&2
     echo "  --flux-bootstrap: force flux bootstrap" >&2
     echo "  --flux-reset: unistall flux before reinstall" >&2
     echo "  --no-wait: do not wait for flux to be ready" >&2
+    echo "  --install: do not wait for flux to be ready" >&2
 }
 
 function args() {

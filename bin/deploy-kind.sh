@@ -73,7 +73,9 @@ export leaf_target_path="clusters/kind/$location-$cluster_name"
 cat .envrc | grep "export GITHUB_" > /tmp/${location}-${cluster_name}-env.sh
 echo "export GITHUB_TOKEN_READ=${GITHUB_TOKEN_READ}" >> /tmp/${location}-${cluster_name}-env.sh
 echo "export GITHUB_TOKEN_WRITE=${GITHUB_TOKEN_WRITE}" >> /tmp/${location}-${cluster_name}-env.sh
-echo "export target_path=${leaf_target_path}" >> /tmp/${location}-${cluster_name}-env.sh
+if [ -z "$mgmt" ]; then
+  echo "export target_path=${leaf_target_path}" >> /tmp/${location}-${cluster_name}-env.sh
+fi
 echo "export listen_address=${listen_address}" >> /tmp/${location}-${cluster_name}-env.sh
 echo "export listen_port=${listen_port}" >> /tmp/${location}-${cluster_name}-env.sh
 echo "export cluster_name=${cluster_name}" >> /tmp/${location}-${cluster_name}-env.sh
