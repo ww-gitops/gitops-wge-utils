@@ -48,6 +48,8 @@ if [ $ret -ne 0 ]; then
     listen_address="$(hostname -I | awk '{print $1}')"
   fi
 
+  public_ip="$(curl -s ifconfig.me)"
+
   cat /tmp/kind.yaml | envsubst > /tmp/kind-config.yaml
 
   mkdir -p /tmp/kubernetes/policies
