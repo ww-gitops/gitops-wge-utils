@@ -8,17 +8,18 @@ set -euo pipefail
 
 function usage()
 {
-    echo "usage ${0} [--debug] [--flux-bootstrap] [--flux-reset] [--no-wait] [--install]" >&2
+    echo "usage ${0} [--debug] [--flux-bootstrap] [--flux-reset] [--no-wait] [--no-install]" >&2
     echo "This script will initialize docker kubernetes" >&2
     echo "  --debug: emmit debugging information" >&2
     echo "  --flux-bootstrap: force flux bootstrap" >&2
     echo "  --flux-reset: unistall flux before reinstall" >&2
     echo "  --no-wait: do not wait for flux to be ready" >&2
-    echo "  --install: do not wait for flux to be ready" >&2
+    echo "  --no-install: do not install software required by kind cluster deployment" >&2
 }
 
 function args() {
   wait=1
+  install="-- install"
   bootstrap=0
   reset=0
   debug_str=""
@@ -29,6 +30,7 @@ function args() {
     case "${arg_list[${arg_index}]}" in
           "--debug") set -x; debug_str="--debug";;
           "--no-wait") wait=0;;
+          "--no-install") install="";;
           "--flux-bootstrap") bootstrap=1;;
           "--flux-reset") reset=1;;
                "-h") usage; exit;;
@@ -58,7 +60,7 @@ if [[ `git status --porcelain` ]]; then
 fi
 
 if [[ "$OSTYPE" == "linux"* ]]; then
-  deploy-kind.sh $debug_str --cluster-name $CLUSTER_NAME --install --mgmt
+  deploy-kind.sh $debug_str --cluster-name $CLUSTER_NAME $install --mgmt
 fi
 
 echo "Waiting for cluster to be ready"

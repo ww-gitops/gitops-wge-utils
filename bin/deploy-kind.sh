@@ -135,7 +135,10 @@ fi
 
 # Create flux-system GitRepository and Kustomization
 
-export target_path="clusters/kind/$hostname-$cluster_name"
+if [ -z "$mgmt" ]; then
+  export target_path="clusters/kind/$hostname-$cluster_name"
+fi
+
 mkdir -p $target_path/flux/flux-system
 cat $(local_or_global resources/gotk-sync.yaml) | envsubst > $target_path/flux/flux-system/gotk-sync.yaml
 git add $target_path/flux/flux-system/gotk-sync.yaml
