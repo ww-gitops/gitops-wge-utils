@@ -53,8 +53,10 @@ source $SCRIPT_DIR/envs.sh
 
 if [[ "$OSTYPE" == "linux"* ]]; then
   flux_suffix="-kind"
+  b64w="-w 0"
 else
   flux_suffix=""
+  b64w=""
 fi
 
 cat $(local_or_global resources/flux${flux_suffix}.yaml) | envsubst > $target_path/flux/flux.yaml
@@ -163,8 +165,8 @@ metadata:
   name: ca-key-pair
   namespace: cert-manager
 data:
-  tls.crt: $(base64 -w 0 -i resources/CA.cer)
-  tls.key: $(base64 -w 0 -i resources/CA.key)
+  tls.crt: $(base64 ${b64w} -i resources/CA.cer)
+  tls.key: $(base64 ${b64w} -i resources/CA.key)
 EOF
 
 # Add CA Certificates to namespaces where it is required
