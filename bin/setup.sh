@@ -288,29 +288,28 @@ if [ "$aws" == "true" ]; then
 fi
 
 if [ "$ecr_repos" == "true" ]; then
-  if [ ! -e resource-descriptions/wge/clusters.yaml ]; then
+  if [ ! -e resource-descriptions/wge/clusters ]; then
     mkdir -p resource-descriptions/wge
-    cat $(local_or_global resource-descriptions/templates/wge/clusters.yaml) | envsubst > resource-descriptions/wge/clusters.yaml
-    git add resource-descriptions/wge/clusters.yaml
+    cp -rf ${config_dir}/resource-descriptions/wge/clusters resource-descriptions/wge
+    git add resource-descriptions/wge/clusters
   fi
 
-  if [ ! -e resource-descriptions/wge/namespaces.yaml ]; then
+  if [ ! -e resource-descriptions/wge/namespaces ]; then
     mkdir -p resource-descriptions/wge
-    cat $(local_or_global resource-descriptions/templates/wge/namespaces.yaml) | envsubst > resource-descriptions/wge/namespaces.yaml
-    git add resource-descriptions/wge/namespaces.yaml
+    cp -rf ${config_dir}/resource-descriptions/templates/wge/namespaces resource-descriptions/wge
+    git add resource-descriptions/wge/namespaces
   fi
 
-  if [ ! -e ci/gitopsset.yaml ]; then
-    mkdir -p ci
-    cat $(local_or_global resource-descriptions/templates/ci/namespaces.yaml) | envsubst > ci/namespaces.yaml
-    git add ci/namespaces.yaml
+  if [ ! -e ci ]; then
+    cp -rf ${config_dir}/resource-descriptions/templates/ci .
+    git add ci
   fi
 
   cp $(local_or_global resources/ecr/flux.yaml) mgmt-cluster/flux/ecr.yaml
   git add mgmt-cluster/flux/ecr.yaml
 
   if [[ `git status --porcelain` ]]; then
-    git commit -m "Add wge resource descriptions"
+    git commit -m "Add wge resource descriptions and ci"
     git pull
     git push
   fi
