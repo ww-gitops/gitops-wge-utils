@@ -205,7 +205,7 @@ flux reconcile kustomization flux-system
 
 # Setup WGE access to the cluster using the WGE SA
 
-export token="$(kubectl --kubeconfig ~/.kube/$location-${cluster_name}.kubeconfig get secrets -n wge -l "weave.works/wge-sa=wge" -o jsonpath={.items[0].data.token})"
+export token="$(kubectl --kubeconfig ~/.kube/$location-${cluster_name}.kubeconfig get secrets -n wge -l "weave.works/wge-sa=wge" -o jsonpath={.items[0].data.token} | base64 -d)"
 export cert="$(cat $HOME/.kube/${hostname}-${cluster_name}.kubeconfig | yq -r '.clusters[0].cluster."certificate-authority-data"')"
 export endpoint="$(cat $HOME/.kube/${hostname}-${cluster_name}.kubeconfig | yq -r '.clusters[0].cluster.server')"
 
