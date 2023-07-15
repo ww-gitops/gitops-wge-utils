@@ -19,7 +19,7 @@ function usage()
 
 function args() {
   wait=1
-  install="-- install"
+  install="--install"
   bootstrap=0
   reset=0
   debug_str=""
