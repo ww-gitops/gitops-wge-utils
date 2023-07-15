@@ -117,7 +117,7 @@ else
     ${utils_dir}/kind-leafs/leaf-install.sh $debug_str
   fi
 
-  cp $(local_or_global resources/kind.yaml) /tmp
+  cat $(local_or_global resources/kind.yaml) | envsubst > /tmp/kind.yaml
 
   export hostname=localhost
   ${utils_dir}/kind-leafs/leaf-deploy.sh $debug_str

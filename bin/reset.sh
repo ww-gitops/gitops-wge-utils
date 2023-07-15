@@ -121,5 +121,5 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   done
 else
   echo "Deleting Kind cluster and recreating" 
-  remove-kind --cluster-name $CLUSTER_NAME
+  remove-kind.sh --cluster-name $CLUSTER_NAME
 fi
