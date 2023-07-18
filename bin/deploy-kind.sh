@@ -132,6 +132,7 @@ else
   fi 
 fi
 
+  kubectl label node ww-paulc-dell-control-plane ingress-ready="true"
 
 # Create flux-system GitRepository and Kustomization
 
