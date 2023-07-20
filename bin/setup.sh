@@ -74,7 +74,7 @@ fi
 echo "Waiting for cluster to be ready"
 kubectl wait --for=condition=Available  -n kube-system deployment coredns
 
-git config pull.rebase true  
+git config pull.rebase true
 
 # Install Flux if not present or force reinstall option set
 
@@ -143,7 +143,7 @@ EOF
   #   git pull
   #   git push
   # fi
-  # 
+  #
   # flux resume kustomization flux-system
 fi
 
@@ -152,7 +152,7 @@ fi
 if [ -f resources/CA.cer ]; then
   echo "Certificate Authority already exists"
 else
-  ca-cert.sh
+  ca-cert.sh $debug_str
 fi
 
 # Install CA Certificate secret so Cert Manager can issue certificates using our CA
@@ -181,6 +181,9 @@ done
 
 if [ "$wait" == "1" ]; then
   echo "Waiting for flux to flux-system Kustomization to be ready"
+  sleep 3
+  flux reconcile kustomization flux-system
+  flux reconcile kustomization flux-components
   kubectl wait --timeout=5m --for=condition=Ready kustomizations.kustomize.toolkit.fluxcd.io -n flux-system flux-system
 fi
 
@@ -205,6 +208,9 @@ if [ "$aws" == "true" ]; then
 fi
 
 if [ "$capi" == "true" ]; then
+  [ -d mgmt-cluster/flux ] || mkdir -p mgmt-cluster/flux
+  [ -d mgmt-cluster/namespace ] || mkdir -p mgmt-cluster/namespace
+  [ -d mgmt-cluster/config ] || mkdir -p mgmt-cluster/config
   cp $(local_or_global resources/capi/flux/)* mgmt-cluster/flux/
   cp $(local_or_global resources/capi/namespace/)* mgmt-cluster/namespace/
   git add mgmt-cluster/flux
@@ -224,6 +230,8 @@ if [[ `git status --porcelain` ]]; then
   git push
 fi
 
+flux reconcile source git -n flux-system flux-system
+
 # Wait for vault to start
 while ( true ); do
   echo "Waiting for vault to start"
@@ -238,8 +246,8 @@ done
 
 sleep 5
 # Initialize vault
-vault-init.sh
-vault-unseal.sh
+vault-init.sh $debug_str --tls-skip
+vault-unseal.sh $debug_str --tls-skip
 
 kubectl apply -f - <<EOF
 apiVersion: v1
@@ -252,14 +260,14 @@ data:
 EOF
 
 set +e
-vault-secrets-config.sh
+vault-secrets-config.sh $debug_str --tls-skip
 set -e
 
 if [ "$aws_capi" == "true" ]; then
   export AWS_B64ENCODED_CREDENTIALS=$(clusterawsadm bootstrap credentials encode-as-profile)
 fi
 
-secrets.sh --tls-skip --wge-entitlement $PWD/resources/wge-entitlement.yaml --secrets $PWD/resources/github-secrets.sh
+secrets.sh $debug_str --tls-skip --wge-entitlement $PWD/resources/wge-entitlement.yaml --secrets $PWD/resources/github-secrets.sh
 
 if [ "$aws_capi" == "true" ]; then
   clusterawsadm bootstrap iam create-cloudformation-stack --config $(local_or_global resources/clusterawsadm.yaml) --region $AWS_REGION
@@ -272,8 +280,11 @@ if [ "$aws_capi" == "true" ]; then
   clusterctl init --infrastructure aws
 fi
 
-# Wait for dex to start
+# Wait for dex to start:
 kubectl wait --timeout=5m --for=condition=Ready kustomization/dex -n flux-system
+
+# Wait for WGE to start:
+kubectl wait --timeout=10m --for=condition=Ready kustomization/wge -n flux-system
 
 # set +e
 # vault-oidc-config.sh

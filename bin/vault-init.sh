@@ -16,8 +16,10 @@ function args() {
   arg_list=( "$@" )
   arg_count=${#arg_list[@]}
   arg_index=0
+  tls_skip=""
   while (( arg_index < arg_count )); do
     case "${arg_list[${arg_index}]}" in
+          "--tls-skip") tls_skip="-tls-skip-verify";;
           "--debug") set -x;;
                "-h") usage; exit;;
            "--help") usage; exit;;
@@ -37,9 +39,9 @@ args "$@"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $SCRIPT_DIR/envs.sh
 
-if [ "$(vault status --format=json | jq -r '.initialized')" == "true" ]; then
+if [ "$(vault status --format=json $tls_skip | jq -r '.initialized')" == "true" ]; then
   echo "Vault already initialized"
   exit 0
 fi
 
-vault operator init -tls-skip-verify -format=json > resources/.vault-init.json
+vault operator init $tls_skip -format=json > resources/.vault-init.json
