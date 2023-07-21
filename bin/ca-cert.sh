@@ -48,7 +48,7 @@ if [[ "$OSTYPE" == "linux"* ]]; then
   sudo mkdir -p /usr/local/share/ca-certificates/wge
   sudo chmod 755 /usr/local/share/ca-certificates/wge
   sudo cp CA.cer /usr/local/share/ca-certificates/wge
-  sudo chmod 644 /usr/local/share/ca-certificates/wge/CA.cer
+  sudo chmod 644 /usr/local/share/ca-certificates/wge/CA.crt
   sudo update-ca-certificates
 fi
 
