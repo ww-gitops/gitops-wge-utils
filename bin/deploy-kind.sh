@@ -63,7 +63,6 @@ utils_dir="$(realpath $SCRIPT_DIR/..)"
 source resources/github-secrets.sh
 location="${hostname}" #:-localhost}"
 
-
 export AWS_ACCOUNT_ID="none"
 if [ "$aws" == "true" ]; then
   export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
@@ -117,8 +116,6 @@ else
     ${utils_dir}/kind-leafs/leaf-install.sh $debug_str
   fi
 
-  cat $(local_or_global resources/kind.yaml) | envsubst > /tmp/kind.yaml
-
   export hostname=localhost
   ${utils_dir}/kind-leafs/leaf-deploy.sh $debug_str
 
@@ -132,13 +129,13 @@ else
   fi 
 fi
 
-  kubectl label node ww-paulc-dell-control-plane ingress-ready="true"
-
-# Create flux-system GitRepository and Kustomization
+kubectl label node ww-paulc-dell-control-plane ingress-ready="true"
 
 if [ -z "$mgmt" ]; then
   export target_path="clusters/kind/$hostname-$cluster_name"
 fi
+
+# Create flux-system GitRepository and Kustomization
 
 mkdir -p $target_path/flux/flux-system
 cat $(local_or_global resources/gotk-sync.yaml) | envsubst > $target_path/flux/flux-system/gotk-sync.yaml

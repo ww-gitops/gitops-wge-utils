@@ -45,4 +45,6 @@ aws-secrets.sh
 kubectl rollout restart deployment -n flux-system  source-controller 
 kubectl rollout restart deployment -n flux-system  kustomize-controller 
 kubectl rollout restart deployment -n flux-system  weave-gitops-enterprise-mccp-cluster-service
-kubectl rollout restart deployment -n capa-system  capa-controller-manager
+if [ "$capi" == "true" ]; then
+  kubectl rollout restart deployment -n capa-system  capa-controller-manager
+fi
