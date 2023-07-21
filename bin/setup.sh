@@ -230,6 +230,7 @@ if [[ `git status --porcelain` ]]; then
   git push
 fi
 
+# Ensure that the git source is updated after pushing to the remote
 flux reconcile source git -n flux-system flux-system
 
 # Wait for vault to start
