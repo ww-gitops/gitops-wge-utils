@@ -21,12 +21,13 @@ function args() {
   arg_list=( "$@" )
   arg_count=${#arg_list[@]}
   arg_index=0
+  debug_str=""
   while (( arg_index < arg_count )); do
     case "${arg_list[${arg_index}]}" in
           "--wge-entitlement") (( arg_index+=1 ));entitlement_file="${arg_list[${arg_index}]}";;
           "--secrets") (( arg_index+=1 ));secrets_file=${arg_list[${arg_index}]};;
-          "--debug") set -x;;
-          "--tls-skip") tls_skip="-tls-skip-verify";;
+          "--debug") set -x; debug_str="--debug";;
+          "--tls-skip") tls_skip="-tls-skip-verify"; script_tls_skip="--tls-skip";;
                "-h") usage; exit;;
            "--help") usage; exit;;
                "-?") usage; exit;;
@@ -45,7 +46,7 @@ args "$@"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $SCRIPT_DIR/envs.sh
 
-aws-secrets.sh
+aws-secrets.sh $debug_str $script_tls_skip
 
 # this is the token for the vault admin user, create a more restricted token for use in default namespace
 vault kv put ${tls_skip} -mount=secrets test-one-vault-token vault_token=${VAULT_TOKEN}

@@ -17,8 +17,10 @@ function args() {
   arg_list=( "$@" )
   arg_count=${#arg_list[@]}
   arg_index=0
+  tls_skip=""
   while (( arg_index < arg_count )); do
     case "${arg_list[${arg_index}]}" in
+          "--tls-skip") tls_skip="-tls-skip-verify";;
           "--debug") set -x;;
                "-h") usage; exit;;
            "--help") usage; exit;;
@@ -48,11 +50,11 @@ export GITHUB_AUTH_ORG=ww-gitops
 
 set +e
 
-vault policy write admin - << EOF
+vault policy write $tls_skip admin - << EOF
 path "*" {
   capabilities = ["create", "read", "update", "patch", "delete", "list", "sudo"]
 }
 EOF
 
-vault secrets enable -tls-skip-verify -path=secrets kv-v2
-vault secrets enable -tls-skip-verify -path=leaf-cluster-secrets kv-v2
+vault secrets enable $tls_skip  -path=secrets kv-v2
+vault secrets enable $tls_skip  -path=leaf-cluster-secrets kv-v2

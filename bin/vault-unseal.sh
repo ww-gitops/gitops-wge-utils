@@ -17,8 +17,10 @@ function args() {
   arg_list=( "$@" )
   arg_count=${#arg_list[@]}
   arg_index=0
+  tls_skip=""
   while (( arg_index < arg_count )); do
     case "${arg_list[${arg_index}]}" in
+          "--tls-skip") tls_skip="-tls-skip-verify";;
           "--debug") set -x;;
                "-h") usage; exit;;
            "--help") usage; exit;;
@@ -40,7 +42,7 @@ source $SCRIPT_DIR/envs.sh
 
 export VAULT_ADDR="https://vault.${local_dns}"
 
-if [ "$(vault status --format=json | jq -r '.sealed')" == "false" ]; then
+if [ "$(vault status --format=json $tls_skip | jq -r '.sealed')" == "false" ]; then
   echo "Vault already unsealed"
   exit 0
 fi
