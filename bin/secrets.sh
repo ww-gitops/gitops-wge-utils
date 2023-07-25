@@ -17,6 +17,7 @@ function usage()
 
 function args() {
   tls_skip=""
+  script_tls_skip=""
 
   arg_list=( "$@" )
   arg_count=${#arg_list[@]}

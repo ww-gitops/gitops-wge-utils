@@ -16,12 +16,13 @@ function usage()
 function args() {
   bootstrap=0
   reset=0
+  debug_str=""
   arg_list=( "$@" )
   arg_count=${#arg_list[@]}
   arg_index=0
   while (( arg_index < arg_count )); do
     case "${arg_list[${arg_index}]}" in
-          "--debug") set -x;;
+          "--debug") set -x; debug_str="--debug";;
                "-h") usage; exit;;
            "--help") usage; exit;;
                "-?") usage; exit;;
@@ -40,7 +41,7 @@ args "$@"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $SCRIPT_DIR/envs.sh
 
-aws-secrets.sh
+aws-secrets.sh $debug_str
 
 kubectl rollout restart deployment -n flux-system  source-controller 
 kubectl rollout restart deployment -n flux-system  kustomize-controller 
