@@ -53,6 +53,7 @@ aws-secrets.sh $debug_str $script_tls_skip
 vault kv put ${tls_skip} -mount=secrets test-one-vault-token vault_token=${VAULT_TOKEN}
 vault kv put ${tls_skip} -mount=secrets test-two-vault-token vault_token=${VAULT_TOKEN}
 vault kv put ${tls_skip} -mount=secrets kind-vault-token vault_token=${VAULT_TOKEN}
+vault kv put ${tls_skip} -mount=secrets flux-apps-vault-token vault_token=${VAULT_TOKEN}
 
 entitlement=$(yq -r '.data.entitlement'  ${entitlement_file})
 if [ "$entitlement" == "null" ]; then
