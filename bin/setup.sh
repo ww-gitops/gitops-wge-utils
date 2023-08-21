@@ -272,7 +272,21 @@ if [ "$aws_capi" == "true" ]; then
   export AWS_B64ENCODED_CREDENTIALS=$(clusterawsadm bootstrap credentials encode-as-profile)
 fi
 
-secrets.sh $debug_str --tls-skip --wge-entitlement $PWD/resources/wge-entitlement.yaml --secrets $PWD/resources/github-secrets.sh
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  if [ -d ~/Library/Caches/gsts ]; then
+    aws_credentials=~/Library/Caches/gsts/credentials
+  else
+    aws_credentials=~/.aws/credentials
+  fi
+else
+  if [ -d ~/.cache/gsts ]; then
+    aws_credentials=~/.cache/gsts/credentials
+  else
+    aws_credentials=~/.aws/credentials
+  fi
+fi
+
+secrets.sh $debug_str --tls-skip --wge-entitlement $PWD/resources/wge-entitlement.yaml --secrets $PWD/resources/github-secrets.sh --aws-credentials $aws_credentials
 
 if [ "$aws_capi" == "true" ]; then
   clusterawsadm bootstrap iam create-cloudformation-stack --config $(local_or_global resources/clusterawsadm.yaml) --region $AWS_REGION

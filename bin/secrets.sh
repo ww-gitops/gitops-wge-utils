@@ -18,6 +18,8 @@ function usage()
 function args() {
   tls_skip=""
   script_tls_skip=""
+  aws_dir="${HOME}/.aws"
+  aws_credentials="${aws_dir}/credentials"
 
   arg_list=( "$@" )
   arg_count=${#arg_list[@]}
@@ -26,6 +28,8 @@ function args() {
   while (( arg_index < arg_count )); do
     case "${arg_list[${arg_index}]}" in
           "--wge-entitlement") (( arg_index+=1 ));entitlement_file="${arg_list[${arg_index}]}";;
+          "--aws-dir") (( arg_index+=1 ));aws_dir=${arg_list[${arg_index}]};;
+          "--aws-credentials") (( arg_index+=1 ));aws_credentials=${arg_list[${arg_index}]};;
           "--secrets") (( arg_index+=1 ));secrets_file=${arg_list[${arg_index}]};;
           "--debug") set -x; debug_str="--debug";;
           "--tls-skip") tls_skip="-tls-skip-verify"; script_tls_skip="--tls-skip";;
@@ -47,7 +51,7 @@ args "$@"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $SCRIPT_DIR/envs.sh
 
-aws-secrets.sh $debug_str $script_tls_skip
+aws-secrets.sh $debug_str $script_tls_skip --aws-dir ${aws_dir} --aws-credentials ${aws_credentials}
 
 # this is the token for the vault admin user, create a more restricted token for use in default namespace
 vault kv put ${tls_skip} -mount=secrets test-one-vault-token vault_token=${VAULT_TOKEN}
