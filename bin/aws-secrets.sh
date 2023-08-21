@@ -12,6 +12,8 @@ function usage()
     echo "This script will create secrets in Vault" >&2
     echo " The --aws-dir option can be used to specify the path to the directory containing" >&2
     echo " the aws credentials and config files, if not specified the default is ~/.aws" >&2
+    echo " The --aws-credentials option can be used to specify the path to the credentials file" >&2
+    echo " so that this can be relocated; if not specified the default is ~/.aws/credentials" >&2
     echo "use the --tls-skip option to load data prior to ingress certificate setup" >&2
 }
 

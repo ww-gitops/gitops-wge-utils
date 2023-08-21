@@ -12,6 +12,8 @@ function usage()
     echo "This script will create secrets in Vault" >&2
     echo " The --wge-entitlement option should reference the WGE entitlement yaml file" >&2
     echo " The --secrets option should reference a bash script which sets the github secrets" >&2
+    echo " The --aws-dir option allows the location for the AWS config directory to be specified; default is ~/.aws" >&2
+    echo " The --aws-credentials option allows the location for the AWS credentials file to be specified; the defaults is ~/.aws/credentials" >&2
     echo "use the --tls-skip option to load data prior to ingress certificate setup" >&2
 }
 
