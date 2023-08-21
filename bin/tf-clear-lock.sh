@@ -55,3 +55,7 @@ echo "aws dynamodb get-item --table-name $table --key '{\"LockID\": {\"S\": \"$t
 echo "aws dynamodb delete-item --table-name $table --key '{\"LockID\": {\"S\": \"$table/$key-md5\"}}'" >> /tmp/clear-lock.sh
 echo "aws dynamodb get-item --table-name $table --key '{\"LockID\": {\"S\": \"$table/$key-md5\"}}'" >> /tmp/clear-lock.sh
 . /tmp/clear-lock.sh
+echo "aws dynamodb get-item --table-name $table --key '{\"LockID\": {\"S\": \"$table/$key\"}}'" > /tmp/clear-lock.sh
+echo "aws dynamodb delete-item --table-name $table --key '{\"LockID\": {\"S\": \"$table/$key\"}}'" >> /tmp/clear-lock.sh
+echo "aws dynamodb get-item --table-name $table --key '{\"LockID\": {\"S\": \"$table/$key\"}}'" >> /tmp/clear-lock.sh
+. /tmp/clear-lock.sh
