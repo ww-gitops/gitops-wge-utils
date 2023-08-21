@@ -12,12 +12,15 @@ function usage()
     echo "This script will create secrets in Vault" >&2
     echo " The --aws-dir option can be used to specify the path to the directory containing" >&2
     echo " the aws credentials and config files, if not specified the default is ~/.aws" >&2
+    echo " The --aws-credentials option can be used to specify the path to the credentials file" >&2
+    echo " so that this can be relocated; if not specified the default is ~/.aws/credentials" >&2
     echo "use the --tls-skip option to load data prior to ingress certificate setup" >&2
 }
 
 function args() {
   tls_skip=""
   aws_dir="${HOME}/.aws"
+  aws_credentials="${aws_dir}/credentials"
 
   arg_list=( "$@" )
   arg_count=${#arg_list[@]}
@@ -25,6 +28,7 @@ function args() {
   while (( arg_index < arg_count )); do
     case "${arg_list[${arg_index}]}" in
           "--aws-dir") (( arg_index+=1 ));aws_dir=${arg_list[${arg_index}]};;
+          "--aws-credentials") (( arg_index+=1 ));aws_credentials=${arg_list[${arg_index}]};;
           "--debug") set -x;;
           "--tls-skip") tls_skip="-tls-skip-verify";;
                "-h") usage; exit;;
@@ -56,10 +60,10 @@ if [ "$aws_capi" == "true" ]; then
 fi
 
 if [ "$aws" == "true" ]; then
-  AWS_ACCESS_KEY_ID=$(cat ${aws_dir}/credentials | grep aws_access_key_id | cut -f2- -d=)
-  AWS_SECRET_ACCESS_KEY=$(cat ${aws_dir}/credentials | grep aws_secret_access_key | cut -f2- -d=)
-  AWS_REGION=$(cat ${aws_dir}/config | grep region | cut -f2- -d= | xargs)
-  AWS_SESSION_TOKEN=$(cat ${aws_dir}/credentials | grep aws_session_token | cut -f2- -d= | cut -f2 -d\")
+  AWS_ACCESS_KEY_ID=$(cat ${aws_credentials} | grep aws_access_key_id | cut -f2- -d=)
+  AWS_SECRET_ACCESS_KEY=$(cat ${aws_credentials} | grep aws_secret_access_key | cut -f2- -d=)
+  AWS_SESSION_TOKEN=$(cat ${aws_credentials} | grep aws_session_token | cut -f2- -d= | cut -f2 -d\")
+  AWS_REGION=$(cat ${aws_dir}/config | grep -m 1 region | cut -f2- -d= | xargs)
 fi
 
 vault kv put ${tls_skip} -mount=secrets aws-creds  AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
