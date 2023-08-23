@@ -318,23 +318,6 @@ if [ "$aws" == "true" ]; then
 fi
 
 if [ "$ecr_repos" == "true" ]; then
-  if [ ! -e resource-descriptions/wge/clusters ]; then
-    mkdir -p resource-descriptions/wge
-    cp -rf ${config_dir}/resource-descriptions/wge/clusters resource-descriptions/wge
-    git add resource-descriptions/wge/clusters
-  fi
-
-  if [ ! -e resource-descriptions/wge/namespaces ]; then
-    mkdir -p resource-descriptions/wge
-    cp -rf ${config_dir}/resource-descriptions/templates/wge/namespaces resource-descriptions/wge
-    git add resource-descriptions/wge/namespaces
-  fi
-
-  if [ ! -e ci ]; then
-    cp -rf ${config_dir}/resource-descriptions/templates/ci .
-    git add ci
-  fi
-
   cp $(local_or_global resources/ecr/flux.yaml) mgmt-cluster/flux/ecr.yaml
   git add mgmt-cluster/flux/ecr.yaml
 
