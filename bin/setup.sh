@@ -158,20 +158,6 @@ data:
   tls.key: $(base64 ${b64w} -i resources/CA.key)
 EOF
 
-# Install secret for Dex to use to pull image
-b64="$(echo -n "{\"auths\":{\"ghcr.io\":{\"auth\":\"$GITHUB_USER:$GITHUB_TOKEN_PACKAGE_READ\"}}}" | base64)"
-cat <<EOF >/tmp/ghcrio.yaml
-kind: Secret
-type: kubernetes.io/dockerconfigjson
-apiVersion: v1
-metadata:
-  name: dockerconfigjson-github-com
-  namespace: default
-data:
-  ".dockerconfigjson": $b64
-EOF
-kubectl apply -f /tmp/ghcrio.yaml
-
 # Add CA Certificates to namespaces where it is required
 
 namespace_list=$(local_or_global resources/local-ca-namespaces.txt)
