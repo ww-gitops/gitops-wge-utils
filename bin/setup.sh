@@ -110,7 +110,7 @@ else
   source resources/github-secrets.sh
   # flux bootstrap github --token-auth --token $GITHUB_TOKEN_WRITE --owner $GITHUB_MGMT_ORG --repository $GITHUB_MGMT_REPO --path $target_path/flux
 
-  # Re create a secret for flux to use to access the git repo backing the cluster, using reasd only token
+  # Re create a secret for flux to use to access the git repo backing the cluster, using read only token
 
   kubectl apply -f - <<EOF
 apiVersion: v1
@@ -314,7 +314,7 @@ if [ "$aws" == "true" ]; then
     echo "Waiting for aws to be applied"
     kubectl wait --timeout=5m --for=condition=Ready kustomization/aws -n flux-system
   fi
-  ${config_dir}/terraform/bin/tf-apply.sh aws-key-pair
+  ${config_dir}/terraform/bin/tf-apply.sh $debug_str aws-key-pair
 fi
 
 if [ "$ecr_repos" == "true" ]; then
