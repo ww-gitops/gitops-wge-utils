@@ -105,10 +105,8 @@ else
       fi
     fi
   fi
-  # kubectl apply -f ${config_dir}/mgmt-cluster/addons/flux
   kustomize build ${config_dir}/mgmt-cluster/addons/flux | kubectl apply -f-
   source resources/github-secrets.sh
-  # flux bootstrap github --token-auth --token $GITHUB_TOKEN_WRITE --owner $GITHUB_MGMT_ORG --repository $GITHUB_MGMT_REPO --path $target_path/flux
 
   # Re create a secret for flux to use to access the git repo backing the cluster, using read only token
 
@@ -136,19 +134,6 @@ EOF
   fi
 
   kubectl apply -f $target_path/flux/flux-system/gotk-sync.yaml
-
-  # flux suspend kustomization flux-system
-  # rm -rf $target_path/flux/flux-system/gotk-components.yaml
-  # rm -rf $target_path/flux/flux-system/kustomization.yaml
-  # git add $target_path/flux/flux-system/gotk-components.yaml
-  # git add $target_path/flux/flux-system/kustomization.yaml
-  # if [[ `git status --porcelain` ]]; then
-  #   git commit -m "remove flux-system gotk-components.yaml and kustomization.yaml from cluster repo"
-  #   git pull
-  #   git push
-  # fi
-  #
-  # flux resume kustomization flux-system
 fi
 
 # Create a CA Certificate for the ingress controller to use
@@ -172,6 +157,20 @@ data:
   tls.crt: $(base64 ${b64w} -i resources/CA.cer)
   tls.key: $(base64 ${b64w} -i resources/CA.key)
 EOF
+
+# Install secret for Dex to use to pull image
+b64="$(echo -n "{\"auths\":{\"ghcr.io\":{\"auth\":\"$GITHUB_USER:$GITHUB_TOKEN_PACKAGE_READ\"}}}" | base64)"
+cat <<EOF >/tmp/ghcrio.yaml
+kind: Secret
+type: kubernetes.io/dockerconfigjson
+apiVersion: v1
+metadata:
+  name: dockerconfigjson-github-com
+  namespace: default
+data:
+  ".dockerconfigjson": $b64
+EOF
+kubectl apply -f /tmp/ghcrio.yaml
 
 # Add CA Certificates to namespaces where it is required
 
