@@ -117,8 +117,8 @@ metadata:
   name: flux-system
   namespace: flux-system
 data:
-  username: $(echo -n "git" | base64)
-  password: $(echo -n "$GITHUB_TOKEN_READ" | base64)
+  username: $(echo -n "git" | base64 ${b64w})
+  password: $(echo -n "$GITHUB_TOKEN_READ" | base64 ${b64w})
 EOF
 
   # Create flux-system GitRepository and Kustomization
@@ -246,7 +246,7 @@ metadata:
   name: vault-token
   namespace: vault
 data:
-  vault_token: $(jq -r '.root_token' resources/.vault-init.json | base64)
+  vault_token: $(jq -r '.root_token' resources/.vault-init.json | base64 ${b64w})
 EOF
 
 set +e
