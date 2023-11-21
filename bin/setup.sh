@@ -17,7 +17,8 @@ function usage()
     echo "  --install: install software required by kind cluster deployment" >&2
 }
 
-function args() {
+function args()
+{
   wait=1
   install=""
   bootstrap=0
@@ -44,6 +45,13 @@ function args() {
     esac
     (( arg_index+=1 ))
   done
+  
+  if [ "$aws" == "true" ]; then
+    if [ -z "$AWS_PROFILE" ]; then
+      echo "AWS_PROFILE not set" >&2
+      exit 1
+    fi
+  fi
 }
 
 args "$@"
@@ -257,7 +265,7 @@ if [ "$aws_capi" == "true" ]; then
   export AWS_B64ENCODED_CREDENTIALS=$(clusterawsadm bootstrap credentials encode-as-profile)
 fi
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
+if [[ "$OSTYPE" == "darwin"*  && ! -e ~/.aws/credentials ]]; then
   if [ -d ~/Library/Caches/gsts ]; then
     aws_credentials=~/Library/Caches/gsts/credentials
   else

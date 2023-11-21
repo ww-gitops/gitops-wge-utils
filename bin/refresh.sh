@@ -41,6 +41,11 @@ args "$@"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $SCRIPT_DIR/envs.sh
 
+if [ -z "$AWS_PROFILE" ]; then
+  echo "AWS_PROFILE not set" >&2
+  exit 1
+fi
+
 aws-secrets.sh $debug_str
 
 kubectl rollout restart deployment -n flux-system  source-controller 

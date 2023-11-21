@@ -89,7 +89,6 @@ vault kv put ${tls_skip} -mount=secrets dex-config config.yaml="$(cat `local_or_
 #       GITLAB_HOSTNAME=${GITLAB_HOSTNAME} GIT_HOST_TYPE=${GIT_HOST_TYPE}
 
 vault kv put ${tls_skip} -mount=secrets wge-oidc-auth clientID=wge clientSecret=${WGE_DEX_CLIENT_SECRET}
-vault kv put ${tls_skip} -mount=secrets vault-oidc-auth clientID=vault clientSecret=${VAULT_DEX_CLIENT_SECRET}
 
 vault kv put ${tls_skip} -mount=secrets github-repo-read-credentials username=token password=${GITHUB_TOKEN_READ}
 
@@ -104,7 +103,7 @@ vault kv put ${tls_skip} -mount=secrets receiver-token token=${RECEIVER_TOKEN}
 
 ADMIN_PASSWORD="$(date +%s | sha256sum | base64 | head -c 10)"
 BCRYPT_PASSWD=$(echo -n $ADMIN_PASSWORD | gitops get bcrypt-hash)
-vault kv put ${tls_skip} -mount=secrets wge-admin-auth username=wge-admin password=${BCRYPT_PASSWD}
+vault kv put ${tls_skip} -mount=secrets wge-admin-auth username=wego-admin password=${BCRYPT_PASSWD}
 
 MONITORING_PASSWORD="$(date +%s | sha256sum | base64 | head -c 10)"
 vault kv put ${tls_skip} -mount=secrets monitoring-auth auth=$(htpasswd -nb prometheus-user ${MONITORING_PASSWORD})
