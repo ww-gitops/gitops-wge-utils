@@ -42,9 +42,9 @@ fi
 
 if [ -n "$public_address" ]; then
   public_ip="$(curl -s ifconfig.me)"
-  k0s config create | sed "s/sans:/sans:\n\ \ \ \ - $public_ip/" > k0s.config
+  k0s config create | sed "s/sans:/sans:\n\ \ \ \ - $public_ip/" > /tmp/k0s.config
 else
-  k0s config create > k0s.config
+  k0s config create > /tmp/k0s.config
 fi
 
 set +e
@@ -54,7 +54,7 @@ set -e
 
 if [ $ret -ne 0 ]; then
   sudo rm -f /etc/systemd/system/k0scontroller.service
-  sudo k0s install controller --single -c k0s.config
+  sudo k0s install controller --single -c /tmp/k0s.config
   sudo k0s start
 fi
 
