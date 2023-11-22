@@ -13,6 +13,7 @@ function usage()
     echo "  --debug: emmit debugging information" >&2
     echo "  --flux-bootstrap: force flux bootstrap" >&2
     echo "  --flux-reset: unistall flux before reinstall" >&2
+    echo "  --cluster-type: the cluster type for Linux, k0s or kind, defaults to k0s" >&2
     echo "  --no-wait: do not wait for flux to be ready" >&2
     echo "  --install: install software required by kind cluster deployment" >&2
 }
@@ -24,6 +25,7 @@ function args()
   bootstrap=0
   reset=0
   debug_str=""
+  cluster_type="k0s"
   arg_list=( "$@" )
   arg_count=${#arg_list[@]}
   arg_index=0
@@ -34,6 +36,7 @@ function args()
           "--install") install="--install";;
           "--flux-bootstrap") bootstrap=1;;
           "--flux-reset") reset=1;;
+          "--cluster-type") (( arg_index+=1 )); cluster_type="${arg_list[${arg_index}]}";;
                "-h") usage; exit;;
            "--help") usage; exit;;
                "-?") usage; exit;;
@@ -64,7 +67,7 @@ if [ -n "$debug_str" ]; then
 fi
 
 if [[ "$OSTYPE" == "linux"* ]]; then
-  flux_suffix="-kind"
+  flux_suffix="-${cluster_type:-kind}"
   b64w="-w 0"
 else
   flux_suffix=""
@@ -80,7 +83,7 @@ if [[ `git status --porcelain` ]]; then
 fi
 
 if [[ "$OSTYPE" == "linux"* ]]; then
-  deploy-kind.sh $debug_str --cluster-name $CLUSTER_NAME $install --mgmt
+  deploy-${cluster_type}.sh $debug_str --cluster-name $CLUSTER_NAME $install --mgmt
 fi
 
 echo "Waiting for cluster to be ready"
