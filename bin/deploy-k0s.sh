@@ -121,12 +121,10 @@ else
   export hostname=localhost
   ${utils_dir}/k0s-leafs/leaf-deploy.sh $debug_str
 
-  if [ -n "$mgmt" ]; then
-    cp /tmp/${cluster_name}.kubeconfig ~/.kube/config
-  else
-    cp /tmp/${cluster_name}.kubeconfig ~/.kube/localhost-${cluster-name}.kubeconfig
-    echo "Cluster ${cluster_name} deployed on localhost, use the following KUBECONFIG to access it:"
-    echo "export KUBECONFIG=~/.kube/localhost-${cluster_name}.kubeconfig" 
+  if [ -z "$mgmt" ]; then
+    # cp /tmp/${cluster_name}.kubeconfig ~/.kube/localhost-${cluster-name}.kubeconfig
+    echo "Cluster ${cluster_name} deployed on ${hostname}, use the following KUBECONFIG to access it:"
+    echo "export KUBECONFIG=~/.kube/${hostname}-${cluster_name}.kubeconfig" 
     export KUBECONFIG=~/.kube/${hostname}-${cluster_name}.kubeconfig
   fi 
 fi
