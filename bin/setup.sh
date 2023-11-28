@@ -70,7 +70,7 @@ if [[ "$OSTYPE" == "linux"* ]]; then
   flux_suffix="-${cluster_type:-kind}"
   b64w="-w 0"
 else
-  flux_suffix=""
+  flux_suffix="-mac"
   b64w=""
 fi
 
@@ -284,16 +284,17 @@ fi
 
 secrets.sh $debug_str --tls-skip --wge-entitlement $PWD/resources/wge-entitlement.yaml --secrets $PWD/resources/github-secrets.sh --aws-credentials $aws_credentials
 
-if [ "$aws_capi" == "true" ]; then
-  clusterawsadm bootstrap iam create-cloudformation-stack --config $(local_or_global resources/clusterawsadm.yaml) --region $AWS_REGION
+# Removed, using operator
+# if [ "$aws_capi" == "true" ]; then
+#   clusterawsadm bootstrap iam create-cloudformation-stack --config $(local_or_global resources/clusterawsadm.yaml) --region $AWS_REGION
 
-  export EXP_EKS=true
-  export EXP_MACHINE_POOL=true
-  export CAPA_EKS_IAM=true
-  export EXP_CLUSTER_RESOURCE_SET=true
+#   export EXP_EKS=true
+#   export EXP_MACHINE_POOL=true
+#   export CAPA_EKS_IAM=true
+#   export EXP_CLUSTER_RESOURCE_SET=true
 
-  clusterctl init --infrastructure aws
-fi
+#   clusterctl init --infrastructure aws
+# fi
 
 # Wait for dex to start:
 kubectl wait --timeout=5m --for=condition=Ready kustomization/dex -n flux-system
