@@ -211,6 +211,7 @@ if [ "$capi" == "true" ]; then
   [ -d mgmt-cluster/flux ] || mkdir -p mgmt-cluster/flux
   [ -d mgmt-cluster/namespace ] || mkdir -p mgmt-cluster/namespace
   [ -d mgmt-cluster/config ] || mkdir -p mgmt-cluster/config
+  cp $(local_or_global resources/capi/operator/)* mgmt-cluster/flux/
   cp $(local_or_global resources/capi/flux/)* mgmt-cluster/flux/
   cp $(local_or_global resources/capi/namespace/)* mgmt-cluster/namespace/
   git add mgmt-cluster/flux
@@ -286,13 +287,17 @@ secrets.sh $debug_str --tls-skip --wge-entitlement $PWD/resources/wge-entitlemen
 
 if [ "$aws_capi" == "true" ]; then
   clusterawsadm bootstrap iam create-cloudformation-stack --config $(local_or_global resources/clusterawsadm.yaml) --region $AWS_REGION
-
+  cp $(local_or_global resources/capi/providers/aws)* mgmt-cluster/flux/
 #   export EXP_EKS=true
 #   export EXP_MACHINE_POOL=true
 #   export CAPA_EKS_IAM=true
 #   export EXP_CLUSTER_RESOURCE_SET=true
 
 #   clusterctl init --infrastructure aws
+fi
+
+if [ "$azure_capi" == "true" ]; then
+  cp $(local_or_global resources/capi/providers/azure)* mgmt-cluster/flux/
 fi
 
 # Wait for dex to start:
