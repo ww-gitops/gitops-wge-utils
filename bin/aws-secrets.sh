@@ -70,12 +70,6 @@ AWS_SECRET_ACCESS_KEY="placeholder"
 AWS_REGION="placeholder"
 AWS_SESSION_TOKEN="placeholder"
 
-export AWS_B64ENCODED_CREDENTIALS="placeholder"
-if [ "$aws_capi" == "true" ]; then
-  export AWS_B64ENCODED_CREDENTIALS=$(clusterawsadm bootstrap credentials encode-as-profile)
-  clusterawsadm bootstrap iam create-cloudformation-stack --config $(local_or_global resources/clusterawsadm.yaml) --region $AWS_REGION
-fi
-
 profile_file="$(get_profile)"
 
 if [ "$aws" == "true" ]; then
@@ -83,6 +77,12 @@ if [ "$aws" == "true" ]; then
   AWS_SECRET_ACCESS_KEY=$(cat ${profile_file} | grep aws_secret_access_key | cut -f2- -d=)
   AWS_SESSION_TOKEN=$(cat ${profile_file} | grep aws_session_token | cut -f2- -d= | cut -f2 -d\")
   AWS_REGION=$(cat ${aws_dir}/config | grep -m 1 region | cut -f2- -d= | xargs)
+fi
+
+export AWS_B64ENCODED_CREDENTIALS="placeholder"
+if [ "$aws_capi" == "true" ]; then
+  export AWS_B64ENCODED_CREDENTIALS=$(clusterawsadm bootstrap credentials encode-as-profile)
+  clusterawsadm bootstrap iam create-cloudformation-stack --config $(local_or_global resources/clusterawsadm.yaml) --region $AWS_REGION
 fi
 
 vault kv put ${tls_skip} -mount=secrets aws-creds  AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \

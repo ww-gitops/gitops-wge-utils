@@ -284,9 +284,8 @@ fi
 
 secrets.sh $debug_str --tls-skip --wge-entitlement $PWD/resources/wge-entitlement.yaml --secrets $PWD/resources/github-secrets.sh --aws-credentials $aws_credentials
 
-# Removed, using operator
-# if [ "$aws_capi" == "true" ]; then
-#   clusterawsadm bootstrap iam create-cloudformation-stack --config $(local_or_global resources/clusterawsadm.yaml) --region $AWS_REGION
+if [ "$aws_capi" == "true" ]; then
+  clusterawsadm bootstrap iam create-cloudformation-stack --config $(local_or_global resources/clusterawsadm.yaml) --region $AWS_REGION
 
 #   export EXP_EKS=true
 #   export EXP_MACHINE_POOL=true
@@ -294,7 +293,7 @@ secrets.sh $debug_str --tls-skip --wge-entitlement $PWD/resources/wge-entitlemen
 #   export EXP_CLUSTER_RESOURCE_SET=true
 
 #   clusterctl init --infrastructure aws
-# fi
+fi
 
 # Wait for dex to start:
 kubectl wait --timeout=5m --for=condition=Ready kustomization/dex -n flux-system
