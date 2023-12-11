@@ -73,6 +73,7 @@ AWS_SESSION_TOKEN="placeholder"
 export AWS_B64ENCODED_CREDENTIALS="placeholder"
 if [ "$aws_capi" == "true" ]; then
   export AWS_B64ENCODED_CREDENTIALS=$(clusterawsadm bootstrap credentials encode-as-profile)
+  clusterawsadm bootstrap iam create-cloudformation-stack --config $(local_or_global resources/clusterawsadm.yaml) --region $AWS_REGION
 fi
 
 profile_file="$(get_profile)"
