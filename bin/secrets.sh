@@ -54,6 +54,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $SCRIPT_DIR/envs.sh
 
 aws-secrets.sh $debug_str $script_tls_skip --aws-dir ${aws_dir} --aws-credentials ${aws_credentials}
+azure-secrets.sh $debug_str
 
 # this is the token for the vault admin user, create a more restricted token for use in default namespace
 vault kv put ${tls_skip} -mount=secrets test-one-vault-token vault_token=${VAULT_TOKEN}
@@ -88,7 +89,7 @@ vault kv put ${tls_skip} -mount=secrets dex-config config.yaml="$(cat `local_or_
 # vault kv put ${tls_skip} -mount=secrets git-provider-credentials GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID} GITLAB_CLIENT_SECRET=${GITLAB_CLIENT_SECRET} \
 #       GITLAB_HOSTNAME=${GITLAB_HOSTNAME} GIT_HOST_TYPE=${GIT_HOST_TYPE}
 
-vault kv put ${tls_skip} -mount=secrets wge-oidc-auth clientID=wge clientSecret=${WGE_DEX_CLIENT_SECRET}
+# vault kv put ${tls_skip} -mount=secrets zwaawn4m5 clientID=wge clientSecret=${WGE_DEX_CLIENT_SECRET}
 
 vault kv put ${tls_skip} -mount=secrets github-repo-read-credentials username=token password=${GITHUB_TOKEN_READ}
 

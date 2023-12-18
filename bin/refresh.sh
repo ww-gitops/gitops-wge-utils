@@ -47,6 +47,7 @@ if [ -z "$AWS_PROFILE" ]; then
 fi
 
 aws-secrets.sh $debug_str
+azure-secrets.sh $debug_str
 
 kubectl rollout restart deployment -n flux-system  source-controller 
 kubectl rollout restart deployment -n flux-system  kustomize-controller 

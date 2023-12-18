@@ -195,6 +195,11 @@ if [ "$wait" == "1" ]; then
 fi
 export CLUSTER_IP=$(kubectl get svc -n ingress-nginx ingress-nginx-controller -o jsonpath='{.spec.clusterIP}')
 
+if [ "$flamingo" == "true" ]; then
+  cp $(local_or_global resources/flamingo/)* mgmt-cluster/flux/
+  git add mgmt-cluster/flux
+fi
+
 export AWS_ACCOUNT_ID="none"
 if [ "$aws" == "true" ]; then
   export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
@@ -287,17 +292,61 @@ secrets.sh $debug_str --tls-skip --wge-entitlement $PWD/resources/wge-entitlemen
 
 if [ "$aws_capi" == "true" ]; then
   clusterawsadm bootstrap iam create-cloudformation-stack --config $(local_or_global resources/clusterawsadm.yaml) --region $AWS_REGION
-  cp $(local_or_global resources/capi/providers/aws)* mgmt-cluster/flux/
-#   export EXP_EKS=true
-#   export EXP_MACHINE_POOL=true
-#   export CAPA_EKS_IAM=true
-#   export EXP_CLUSTER_RESOURCE_SET=true
+  cp $(local_or_global resources/capi/providers/aws/)* mgmt-cluster/flux/
+  git add mgmt-cluster/flux/capa.yaml
 
-#   clusterctl init --infrastructure aws
+  if [[ `git status --porcelain` ]]; then
+    git commit -m "Add capa"
+    git pull
+    git push
+  fi
+
+  export EXP_EKS=true
+  export EXP_MACHINE_POOL=true
+  export CAPA_EKS_IAM=true
+  export EXP_CLUSTER_RESOURCE_SET=true
+
+  clusterctl init --infrastructure aws
 fi
 
 if [ "$azure_capi" == "true" ]; then
-  cp $(local_or_global resources/capi/providers/azure)* mgmt-cluster/flux/
+  cp $(local_or_global resources/capi/providers/azure/)* mgmt-cluster/flux/
+  git add mgmt-cluster/flux/capz.yaml
+
+  if [[ `git status --porcelain` ]]; then
+    git commit -m "Add capz"
+    git pull
+    git push
+  fi
+
+# Create an Azure Service Principal and paste the output here
+source resources/azure-secrets.sh
+
+export AZURE_SUBSCRIPTION_ID="$subscription_id"
+export AZURE_TENANT_ID="$tenant_id"
+export AZURE_CLIENT_ID="$client_id"
+export AZURE_CLIENT_SECRET="$client_secret"
+
+# Base64 encode the variables
+export AZURE_SUBSCRIPTION_ID_B64="$(echo -n "$AZURE_SUBSCRIPTION_ID" | base64 | tr -d '\n')"
+export AZURE_TENANT_ID_B64="$(echo -n "$AZURE_TENANT_ID" | base64 | tr -d '\n')"
+export AZURE_CLIENT_ID_B64="$(echo -n "$AZURE_CLIENT_ID" | base64 | tr -d '\n')"
+export AZURE_CLIENT_SECRET_B64="$(echo -n "$AZURE_CLIENT_SECRET" | base64 | tr -d '\n')"
+
+# Settings needed for AzureClusterIdentity used by the AzureCluster
+export AZURE_CLUSTER_IDENTITY_SECRET_NAME="cluster-identity-secret"
+export CLUSTER_IDENTITY_NAME="cluster-identity"
+export AZURE_CLUSTER_IDENTITY_SECRET_NAMESPACE="default"
+
+# Create a secret to include the password of the Service Principal identity created in Azure
+# This secret will be referenced by the AzureClusterIdentity used by the AzureCluster
+set +e
+kubectl create secret generic "${AZURE_CLUSTER_IDENTITY_SECRET_NAME}" --from-literal=clientSecret="${AZURE_CLIENT_SECRET}" --namespace "${AZURE_CLUSTER_IDENTITY_SECRET_NAMESPACE}"
+set -e
+
+# Finally, initialize the management cluster
+clusterctl init --infrastructure azure
+
 fi
 
 # Wait for dex to start:
