@@ -8,7 +8,7 @@ set -euo pipefail
 
 function usage()
 {
-    echo "usage ${0} [--debug] [--install] [--username <username>] [--cluster-name <hostname>]  [--hostname <hostname>] [--listen-address <ip address>] [--listen-port <port>] [--mgmt]" >&2
+    echo "usage ${0} [--debug] [--install] [--reset] [--username <username>] [--cluster-name <hostname>]  [--hostname <hostname>] [--listen-address <ip address>] [--listen-port <port>] [--mgmt]" >&2
     echo "This script will deploy Kubernetes cluster on the local machine or another host" >&2
     echo "The target machine must be accessible via ssh using hostname, add the hostname to /etc/hosts if needed first" >&2
     echo "use --mgmt option when creating a mgmt cluster" >&2
@@ -16,6 +16,7 @@ function usage()
 
 function args() {
   install=""
+  reset=""
   username_str=""
   listen_address="127.0.0.1"
   listen_port="6443"
@@ -35,6 +36,7 @@ function args() {
   while (( arg_index < arg_count )); do
     case "${arg_list[${arg_index}]}" in
           "--install") install="true";;
+          "--reset") reset="--reset";;
           "--mgmt") mgmt="true";;
           "--cluster-name") (( arg_index+=1 )); cluster_name="${arg_list[${arg_index}]}";;
           "--hostname") (( arg_index+=1 )); hostname="${arg_list[${arg_index}]}";;
@@ -99,7 +101,7 @@ if [ "${hostname}" != "localhost" ]; then
     $ssh_cmd ${username_str}${hostname} "source /tmp/kind-leafs/leaf-install.sh $debug_str"
   fi
 
-  $ssh_cmd ${username_str}${hostname} "source /tmp/kind-leafs/leaf-deploy.sh $debug_str"
+  $ssh_cmd ${username_str}${hostname} "source /tmp/kind-leafs/leaf-deploy.sh $debug_str $reset"
 
   $scp_cmd ${username_str}${hostname}:/tmp/${cluster_name}.kubeconfig ~/.kube/${hostname}-${cluster_name}.kubeconfig >/dev/null
 
@@ -113,11 +115,11 @@ else
   cp -r $(local_or_global resources/audit.yaml) /tmp
 
   if [ -n "$install" ]; then
-    ${utils_dir}/kind-leafs/leaf-install.sh $debug_str
+    ${utils_dir}/kind-leafs/leaf-install.sh $debug_str $reset
   fi
 
   export hostname=localhost
-  ${utils_dir}/kind-leafs/leaf-deploy.sh $debug_str
+  ${utils_dir}/kind-leafs/leaf-deploy.sh $debug_str $reset
 
   if [ -n "$mgmt" ]; then
     cp /tmp/${cluster_name}.kubeconfig ~/.kube/config
@@ -220,7 +222,4 @@ if [[ `git status --porcelain` ]]; then
 fi
 
 flux reconcile source git flux-system
-flux reconcile kustomization flux-system
-
-
-
+flux reconcile kustomization flux-system --timeout duration  1m

@@ -47,7 +47,7 @@ openssl req -x509 -new -nodes -key CA.key -subj "/CN=paulc" -days 3650 -reqexts 
 if [[ "$OSTYPE" == "linux"* ]]; then
   sudo mkdir -p /usr/local/share/ca-certificates/wge
   sudo chmod 755 /usr/local/share/ca-certificates/wge
-  sudo cp CA.cer /usr/local/share/ca-certificates/wge
+  sudo cp CA.cer /usr/local/share/ca-certificates/wge/CA.crt
   sudo chmod 644 /usr/local/share/ca-certificates/wge/CA.crt
   sudo update-ca-certificates
 fi

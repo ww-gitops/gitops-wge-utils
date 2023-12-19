@@ -8,9 +8,10 @@ set -euo pipefail
 
 function usage()
 {
-    echo "usage ${0} [--debug] [--flux-bootstrap] [--flux-reset] [--no-wait] [--install]" >&2
+    echo "usage ${0} [--debug] [--flux-bootstrap] [--flux-reset] [--no-wait] [--install] [--reset]" >&2
     echo "This script will initialize docker kubernetes" >&2
     echo "  --debug: emmit debugging information" >&2
+    echo "  --reset: delete cluster and recreate" >&2
     echo "  --flux-bootstrap: force flux bootstrap" >&2
     echo "  --flux-reset: unistall flux before reinstall" >&2
     echo "  --cluster-type: the cluster type for Linux, k0s or kind, defaults to k0s" >&2
@@ -21,6 +22,7 @@ function usage()
 function args()
 {
   wait=1
+  reset=""
   install=""
   bootstrap=0
   reset=0
@@ -34,6 +36,7 @@ function args()
           "--debug") set -x; debug_str="--debug";;
           "--no-wait") wait=0;;
           "--install") install="--install";;
+          "--reset") reset="--reset";;
           "--flux-bootstrap") bootstrap=1;;
           "--flux-reset") reset=1;;
           "--cluster-type") (( arg_index+=1 )); cluster_type="${arg_list[${arg_index}]}";;
@@ -83,7 +86,7 @@ if [[ `git status --porcelain` ]]; then
 fi
 
 if [[ "$OSTYPE" == "linux"* ]]; then
-  deploy-${cluster_type}.sh $debug_str --cluster-name $CLUSTER_NAME $install --mgmt
+  deploy-${cluster_type}.sh $debug_str --cluster-name $CLUSTER_NAME $install --mgmt $reset
 fi
 
 echo "Waiting for cluster to be ready"
@@ -293,10 +296,11 @@ secrets.sh $debug_str --tls-skip --wge-entitlement $PWD/resources/wge-entitlemen
 if [ "$aws_capi" == "true" ]; then
   clusterawsadm bootstrap iam create-cloudformation-stack --config $(local_or_global resources/clusterawsadm.yaml) --region $AWS_REGION
   cp $(local_or_global resources/capi/providers/aws/)* mgmt-cluster/flux/
+
   git add mgmt-cluster/flux/capa.yaml
 
   if [[ `git status --porcelain` ]]; then
-    git commit -m "Add capa"
+    git commit -m "Add AWS Cluster API provider"
     git pull
     git push
   fi
@@ -306,6 +310,7 @@ if [ "$aws_capi" == "true" ]; then
   export CAPA_EKS_IAM=true
   export EXP_CLUSTER_RESOURCE_SET=true
 
+  clusterctl init --infrastructure aws
   clusterctl init --infrastructure aws
 fi
 
