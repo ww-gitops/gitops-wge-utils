@@ -83,9 +83,10 @@ if [ -n "$repo_reset" ]; then
   rm -rf $target_path/flux
   git add $target_path/flux
   if [[ `git status --porcelain` ]]; then
-    git commit -m "Add flux.yaml"
+    git commit -m "reset repo"
     git pull
     git push
+  fi
 fi
 
 cat $(local_or_global resources/flux${flux_suffix}.yaml) | envsubst > $target_path/flux/flux.yaml
