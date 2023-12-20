@@ -80,7 +80,7 @@ else
 fi
 
 if [ -n "$repo_reset" ]; then
-  rm -rf $target_path/flux
+  rm -rf $target_path/flux/*.yaml
   git add $target_path/flux
   if [[ `git status --porcelain` ]]; then
     git commit -m "reset repo"
