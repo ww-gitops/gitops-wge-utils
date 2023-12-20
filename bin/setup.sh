@@ -8,7 +8,7 @@ set -euo pipefail
 
 function usage()
 {
-    echo "usage ${0} [--debug] [--flux-bootstrap] [--flux-reset] [--no-wait] [--install] [--reset]" >&2
+    echo "usage ${0} [--debug] [--flux-bootstrap] [--flux-reset] [--no-wait] [--install] [--reset] [--repo-reset]" >&2
     echo "This script will initialize docker kubernetes" >&2
     echo "  --debug: emmit debugging information" >&2
     echo "  --reset: delete cluster and recreate" >&2
@@ -22,7 +22,8 @@ function usage()
 function args()
 {
   wait=1
-  reset=""
+  flux_reset=""
+  repo_reset=""
   install=""
   bootstrap=0
   reset=0
@@ -38,7 +39,8 @@ function args()
           "--install") install="--install";;
           "--reset") reset="--reset";;
           "--flux-bootstrap") bootstrap=1;;
-          "--flux-reset") reset=1;;
+          "--flux-reset") flux_reset=1;;
+          "--repo-reset") repo_reset=1;;
           "--cluster-type") (( arg_index+=1 )); cluster_type="${arg_list[${arg_index}]}";;
                "-h") usage; exit;;
            "--help") usage; exit;;
@@ -77,6 +79,15 @@ else
   b64w=""
 fi
 
+if [ -n "$repo_reset" ]; then
+  rm -rf $target_path/flux
+  git add $target_path/flux
+  if [[ `git status --porcelain` ]]; then
+    git commit -m "Add flux.yaml"
+    git pull
+    git push
+fi
+
 cat $(local_or_global resources/flux${flux_suffix}.yaml) | envsubst > $target_path/flux/flux.yaml
 git add $target_path/flux/flux.yaml
 if [[ `git status --porcelain` ]]; then
@@ -106,7 +117,7 @@ fi
 if [ $bootstrap -eq 0 ]; then
   echo "flux-system namespace already. skipping bootstrap"
 else
-  if [ $reset -eq 1 ]; then
+  if [ $flux_reset -eq 1 ]; then
     echo "uninstalling flux"
     flux uninstall --silent --keep-namespace
     if [ -e $target_path/flux/flux-system ]; then
@@ -119,6 +130,7 @@ else
       fi
     fi
   fi
+
   kustomize build ${config_dir}/mgmt-cluster/addons/flux | kubectl apply -f-
   source resources/github-secrets.sh
 
@@ -150,7 +162,7 @@ EOF
   kubectl apply -f $target_path/flux/flux-system/gotk-sync.yaml
 fi
 
-# Create a CA Certificate for the ingress controller to use
+# Create a CA Certificate for the ingress controller to usea
 
 if [ -f resources/CA.cer ]; then
   echo "Certificate Authority already exists"
@@ -221,9 +233,7 @@ if [ "$capi" == "true" ]; then
   [ -d mgmt-cluster/config ] || mkdir -p mgmt-cluster/config
   cp $(local_or_global resources/capi/operator/)* mgmt-cluster/flux/
   cp $(local_or_global resources/capi/flux/)* mgmt-cluster/flux/
-  cp $(local_or_global resources/capi/namespace/)* mgmt-cluster/namespace/
   git add mgmt-cluster/flux
-  git add mgmt-cluster/namespace
 fi
 
 export namespace=flux-system
